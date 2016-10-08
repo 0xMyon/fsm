@@ -11,15 +11,15 @@ package com.github.myon.fsmlib;
 public interface ClosedLanguage<O, T extends ClosedLanguage<O,T>> extends ClosedSymetricSet<FiniteSequence<O>, T>, ClosedSequence<O, T> {
 
 	/**
-	 * iterates the language
+	 * creates an iterated language
 	 * @return
 	 */
-	public T itterate();
+	public T iteration();
 
 	/**
 	 * creates an optional language
 	 * @return
 	 */
-	public T optional();
+	public T option();
 
 }

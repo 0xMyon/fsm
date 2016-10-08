@@ -9,7 +9,7 @@ import com.github.myon.fsmlib.ClosedSequence;
  * @param <O> element type
  * @param <T> underling type
  */
-public interface MutbaleSequence<O, T extends MutbaleSequence<O, T>> extends ClosedSequence<O, T> {
+public interface MutableSequence<O, T extends MutableSequence<O, T>> extends ClosedSequence<O, T> {
 
 	/**
 	 * appends a sequence
