@@ -70,5 +70,11 @@ public interface MutableSet<O, T extends MutableSet<O, T>> extends ClosedSet<O, 
 	 */
 	public T copy();
 
+	/**
+	 * clears the set
+	 * the predicate isEmpty is true
+	 */
+	void clear();
+
 
 }

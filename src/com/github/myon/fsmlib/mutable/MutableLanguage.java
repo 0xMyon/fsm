@@ -1,9 +1,9 @@
 package com.github.myon.fsmlib.mutable;
 
-import com.github.myon.fsmlib.FiniteSequence;
+import com.github.myon.fsmlib.container.Sequence;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
-public interface MutableLanguage<O, T extends MutableLanguage<O, T>> extends MutableSymetricSet<FiniteSequence<O>, T>, MutableSequence<O, T>, ClosedLanguage<O, T> {
+public interface MutableLanguage<O, T extends MutableLanguage<O, T>> extends MutableSymetricSet<Sequence<O>, T>, MutableSequence<O, T>, ClosedLanguage<O, T> {
 
 	@Override
 	public default T iteration() {
@@ -16,7 +16,7 @@ public interface MutableLanguage<O, T extends MutableLanguage<O, T>> extends Mut
 	@Override
 	public default T option() {
 		final T result = this.copy();
-		result.add(new FiniteSequence<>());
+		result.add(new Sequence<>());
 		return result;
 	}
 

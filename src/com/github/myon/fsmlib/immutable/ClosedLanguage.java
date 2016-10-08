@@ -1,6 +1,6 @@
 package com.github.myon.fsmlib.immutable;
 
-import com.github.myon.fsmlib.FiniteSequence;
+import com.github.myon.fsmlib.container.Sequence;
 
 /**
  *
@@ -10,7 +10,7 @@ import com.github.myon.fsmlib.FiniteSequence;
  * @param <O> underling type
  * @param <T> sub type
  */
-public interface ClosedLanguage<O, T extends ClosedLanguage<O,T>> extends ClosedSymetricSet<FiniteSequence<O>, T>, ClosedSequence<O, T> {
+public interface ClosedLanguage<O, T extends ClosedLanguage<O,T>> extends ClosedSymetricSet<Sequence<O>, T>, ClosedSequence<O, T> {
 
 	/**
 	 * creates an iterated language
