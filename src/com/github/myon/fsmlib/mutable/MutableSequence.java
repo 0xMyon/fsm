@@ -1,6 +1,6 @@
 package com.github.myon.fsmlib.mutable;
 
-import com.github.myon.fsmlib.ClosedSequence;
+import com.github.myon.fsmlib.immutable.ClosedSequence;
 
 /**
  * @author 0xMyon

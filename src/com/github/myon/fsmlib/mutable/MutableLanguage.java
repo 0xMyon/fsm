@@ -1,7 +1,7 @@
 package com.github.myon.fsmlib.mutable;
 
-import com.github.myon.fsmlib.ClosedLanguage;
 import com.github.myon.fsmlib.FiniteSequence;
+import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 public interface MutableLanguage<O, T extends MutableLanguage<O, T>> extends MutableSymetricSet<FiniteSequence<O>, T>, MutableSequence<O, T>, ClosedLanguage<O, T> {
 

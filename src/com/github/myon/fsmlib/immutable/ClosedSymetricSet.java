@@ -1,4 +1,4 @@
-package com.github.myon.fsmlib;
+package com.github.myon.fsmlib.immutable;
 
 /**
  * @author 0xMyon

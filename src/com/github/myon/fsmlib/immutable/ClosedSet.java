@@ -1,4 +1,6 @@
-package com.github.myon.fsmlib;
+package com.github.myon.fsmlib.immutable;
+
+import com.github.myon.fsmlib.type.OrderedType;
 
 /**
  * @author 0xMyon
