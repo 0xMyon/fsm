@@ -13,16 +13,16 @@ public interface ClosedSymetricSet<O, T extends ClosedSymetricSet<O, T>> extends
 	 * inverts the type
 	 * @return a type, that contains all objects that are not contained in this type
 	 */
-	T invert();
+	T complement();
 
 	@Override
-	default T intersect(final T that) {
-		return this.invert().unite(that.invert()).invert();
+	default T intersection(final T that) {
+		return this.complement().union(that.complement()).complement();
 	}
 
 	@Override
 	default T minus(final T that) {
-		return this.invert().unite(that).invert();
+		return this.complement().union(that).complement();
 	}
 
 }

@@ -15,7 +15,7 @@ public interface ClosedSet<O, T extends ClosedSet<O, T>> extends OrderedType<O, 
 	 * @param that
 	 * @return a type that contains all objects of this or that
 	 */
-	public T unite(T that);
+	public T union(T that);
 
 	/**
 	 * intersects two types
@@ -23,7 +23,7 @@ public interface ClosedSet<O, T extends ClosedSet<O, T>> extends OrderedType<O, 
 	 * @param that
 	 * @return a type that contains all objects of this and that
 	 */
-	public T intersect(T that);
+	public T intersection(T that);
 
 	/**
 	 * intersects two types
@@ -50,7 +50,7 @@ public interface ClosedSet<O, T extends ClosedSet<O, T>> extends OrderedType<O, 
 	 * @return true, if there are objects in both types
 	 */
 	public default boolean isDisjunced(final T that) {
-		return this.intersect(that).isEmpty();
+		return this.intersection(that).isEmpty();
 	}
 
 }
