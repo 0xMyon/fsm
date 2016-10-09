@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.github.myon.fsmlib.mutable.MutableSet;
 import com.github.myon.util.Anything;
@@ -11,6 +12,13 @@ import com.github.myon.util.Anything;
 public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>> {
 
 	private final Set<O> data = new HashSet<>();
+
+	@SafeVarargs
+	public FiniteSet(final O... objects) {
+		for(final O object : objects) {
+			this.data.add(object);
+		}
+	}
 
 	@Override
 	public boolean isEmpty() {
@@ -98,6 +106,16 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>
 			return this.data.equals(that.data);
 		}
 		return false;
+	}
+
+	/**
+	 * applies a function to all objects in the set
+	 * @param consumer
+	 */
+	public void forAll(final Consumer<O> consumer) {
+		for(final O object: this.data) {
+			consumer.accept(object);
+		}
 	}
 
 }
