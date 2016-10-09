@@ -138,6 +138,10 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 			public SymetricSet<O> intersection(final O... objects) {
 				return new SymetricSet<O>(true, objects);
 			}
+			@Override
+			public SymetricSet<O> element(final O object) {
+				return new SymetricSet<O>(false, object);
+			}
 		};
 	}
 

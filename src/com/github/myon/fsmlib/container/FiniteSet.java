@@ -176,6 +176,10 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 			public FiniteSet<O> union(final O... objects) {
 				return new FiniteSet<>(objects);
 			}
+			@Override
+			public FiniteSet<O> element(final O object) {
+				return new FiniteSet<>(object);
+			}
 		};
 	}
 

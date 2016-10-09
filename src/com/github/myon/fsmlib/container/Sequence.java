@@ -136,6 +136,10 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 			public Sequence<O> sequence(final O... objects) {
 				return new Sequence<>(objects);
 			}
+			@Override
+			public Sequence<O> element(final O object) {
+				return new Sequence<>(object);
+			}
 		};
 	}
 

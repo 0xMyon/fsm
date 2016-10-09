@@ -7,4 +7,6 @@ public interface SymetricSetFactory<O, B, T extends ClosedSymetricSet<O, B, T>> 
 	@SuppressWarnings("unchecked")
 	public T intersection(final B... objects);
 
+
+
 }
