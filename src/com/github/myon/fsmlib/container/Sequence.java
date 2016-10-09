@@ -3,6 +3,11 @@ package com.github.myon.fsmlib.container;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.github.myon.fsmlib.mutable.MutableSequence;
 import com.github.myon.util.Anything;
@@ -65,6 +70,52 @@ public class Sequence<O> extends Anything implements MutableSequence<O, Sequence
 	@Override
 	public String toString() {
 		return this.data.toString();
+	}
+
+
+	/**
+	 * applies a function to all objects in the set
+	 * @param consumer
+	 */
+	public void forAll(final Consumer<O> consumer) {
+		for(final O object: this.data) {
+			consumer.accept(object);
+		}
+	}
+
+	public FiniteSet<O> findAll(final Predicate<O> predicate) {
+		final FiniteSet<O> result = new FiniteSet<>();
+		for(final O object: this.data) {
+			if (predicate.test(object)) {
+				result.add(object);
+			}
+		}
+		return result;
+	}
+
+	public O findFirst(final Predicate<O> predicate) {
+		for(final O object: this.data) {
+			if (predicate.test(object)) {
+				return object;
+			}
+		}
+		return null;
+	}
+
+	public <R> FiniteSet<R> map(final Function<O,R> function) {
+		final FiniteSet<R> result = new FiniteSet<>();
+		for(final O object: this.data) {
+			result.add(function.apply(object));
+		}
+		return result;
+	}
+
+	public <R> R aggregate(final Supplier<R> neutral, final BiFunction<O, R, R> aggregator) {
+		R result = neutral.get();
+		for(final O object:this.data) {
+			result = aggregator.apply(object, result);
+		}
+		return result;
 	}
 
 }
