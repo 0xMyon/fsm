@@ -1,6 +1,7 @@
 package com.github.myon.fsmlib.expression;
 
 import com.github.myon.fsmlib.container.Sequence;
+import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -10,13 +11,27 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public class SequenceExpression<O, T extends ClosedLanguage<O, T>> extends Expression<O,T> {
+public class SequenceExpression<O, T extends ClosedLanguage<O, O, T>> extends Expression<O,T> {
+
+	// TODO return elementary on single element
+
+	@SafeVarargs
+	public SequenceExpression(final LanguageFactory<O, O, T> factory, final O... objects) {
+		super(factory);
+		for(final O object : objects) {
+			this.factors.append(new ElementaryExpression<>(factory, object));
+		}
+	}
+
+
 
 	private final Sequence<Expression<O,T>> factors = new Sequence<>();
 
+
+
 	@SafeVarargs
-	public static <O, T extends ClosedLanguage<O, T>> SequenceExpression<O,T> create(final Expression<O,T>... factors) {
-		final SequenceExpression<O,T> result = new SequenceExpression<>();
+	public static <O, T extends ClosedLanguage<O, O, T>> SequenceExpression<O,T> create(final LanguageFactory<O, O, T> factory, final Expression<O,T>... factors) {
+		final SequenceExpression<O,T> result = new SequenceExpression<>(factory);
 		for(final Expression<O,T> factor : factors) {
 			if (factor instanceof SequenceExpression) {
 				result.factors.append(((SequenceExpression<O,T>)factor).factors);
@@ -29,9 +44,15 @@ public class SequenceExpression<O, T extends ClosedLanguage<O, T>> extends Expre
 
 
 	@Override
-	public T evaluate() {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+		return this.factors.aggregate(()->factory.sequence(), (factor, result)-> {
+			return factor.convert(factory).concat(result);
+		});
 	}
+
+
+
+
 
 }

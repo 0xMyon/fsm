@@ -2,15 +2,29 @@ package com.github.myon.fsmlib.container;
 
 import java.util.Objects;
 
+import com.github.myon.fsmlib.factory.SymetricSetFactory;
+import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.fsmlib.mutable.MutableSymetricSet;
 import com.github.myon.util.Anything;
 
-public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, SymetricSet<O>> {
+public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O, SymetricSet<O>> {
 
 
 	private boolean inverted = false;
 	private final FiniteSet<O> data = new FiniteSet<>();
 
+	@SafeVarargs
+	public SymetricSet(final O... objects) {
+		this(false, objects);
+	}
+
+	@SafeVarargs
+	private SymetricSet(final boolean inverted, final O... objects) {
+		this.inverted = inverted;
+		for(final O object: objects) {
+			this.data.add(object);
+		}
+	}
 
 	@Override
 	public void unite(final SymetricSet<O> that) {
@@ -46,7 +60,7 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, Sy
 
 	@Override
 	public SymetricSet<O> copy() {
-		final SymetricSet<O> result = new SymetricSet<>();
+		final SymetricSet<O> result = new SymetricSet<O>();
 		result.unite(this);
 		return result;
 	}
@@ -108,6 +122,33 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, Sy
 			return this.data.equals(that.data) && this.inverted == that.inverted;
 		}
 		return false;
+	}
+
+
+	@Override
+	public SymetricSetFactory<O, O, SymetricSet<O>> factory() {
+		return new SymetricSetFactory<O, O, SymetricSet<O>>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public SymetricSet<O> union(final O... objects) {
+				return new SymetricSet<O>(false, objects);
+			}
+			@Override
+			@SuppressWarnings("unchecked")
+			public SymetricSet<O> intersection(final O... objects) {
+				return new SymetricSet<O>(true, objects);
+			}
+		};
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedSymetricSet<O, O, R>> R convert(final SymetricSetFactory<O, O, R> factory) {
+		if (this.inverted) {
+			return factory.intersection((O[])this.data.data.toArray());
+		} else {
+			return factory.union((O[])this.data.data.toArray());
+		}
 	}
 
 

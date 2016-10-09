@@ -9,7 +9,7 @@ import com.github.myon.fsmlib.immutable.ClosedSet;
  * @param <O> super type
  * @param <T> underling type
  */
-public interface MutableSet<O, T extends MutableSet<O, T>> extends ClosedSet<O, T> {
+public interface MutableSet<O, B, T extends MutableSet<O, B, T>> extends ClosedSet<O, B, T> {
 
 	/**
 	 * removes all objects that are in that set

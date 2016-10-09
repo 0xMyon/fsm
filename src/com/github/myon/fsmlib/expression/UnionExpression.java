@@ -1,6 +1,7 @@
 package com.github.myon.fsmlib.expression;
 
 import com.github.myon.fsmlib.container.FiniteSet;
+import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -10,13 +11,24 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public class UnionExpression<O,T extends ClosedLanguage<O, T>> extends Expression<O,T> {
+public class UnionExpression<O,T extends ClosedLanguage<O,O, T>> extends Expression<O,T> {
+
+	// TODO return elementary on single element
+
+	@SafeVarargs
+	public UnionExpression(final LanguageFactory<O, O, T> factory, final O... objects) {
+		super(factory);
+		for(final O object : objects) {
+			this.summands.add(new ElementaryExpression<>(factory, object));
+		}
+	}
+
 
 	private final FiniteSet<Expression<O,T>> summands = new FiniteSet<>();
 
 	@SafeVarargs
-	public static <O,T extends ClosedLanguage<O, T>> UnionExpression<O,T> create(final Expression<O,T>... summands) {
-		final UnionExpression<O,T> result = new UnionExpression<>();
+	public static <O,T extends ClosedLanguage<O, O, T>> UnionExpression<O,T> create(final LanguageFactory<O, O, T> factory, final Expression<O,T>... summands) {
+		final UnionExpression<O,T> result = new UnionExpression<>(factory);
 		for(final Expression<O,T> summand : summands) {
 			if (summand instanceof UnionExpression) {
 				result.summands.unite(((UnionExpression<O,T>)summand).summands);
@@ -29,9 +41,11 @@ public class UnionExpression<O,T extends ClosedLanguage<O, T>> extends Expressio
 
 
 	@Override
-	public T evaluate() {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+		return this.summands.aggregate(()->factory.union(), (summand, result)-> {
+			return summand.convert(factory).union(result);
+		});
 	}
 
 }

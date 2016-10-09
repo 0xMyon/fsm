@@ -3,7 +3,7 @@ package com.github.myon.fsmlib.mutable;
 import com.github.myon.fsmlib.container.Sequence;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
-public interface MutableLanguage<O, T extends MutableLanguage<O, T>> extends MutableSymetricSet<Sequence<O>, T>, MutableSequence<O, T>, ClosedLanguage<O, T> {
+public interface MutableLanguage<O, B, T extends MutableLanguage<O, B, T>> extends MutableSymetricSet<Sequence<O>, B, T>, MutableSequence<O, B, T>, ClosedLanguage<O, B, T> {
 
 	@Override
 	public default T iteration() {

@@ -1,5 +1,6 @@
 package com.github.myon.fsmlib.expression;
 
+import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -9,17 +10,30 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public class ElementaryExpression<O, T extends ClosedLanguage<O, T>> extends Expression<O, T> {
+public class ElementaryExpression<O, T extends ClosedLanguage<O, O, T>> extends Expression<O, T> {
 
-	private final T type;
+	private final O object;
 
-	public ElementaryExpression(final T type) {
-		this.type = type;
+	public ElementaryExpression(final LanguageFactory<O, O, T> factory, final O object) {
+		super(factory);
+		this.object = object;
 	}
 
 	@Override
-	public T evaluate() {
-		return this.type;
+	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+		return factory.element(this.object);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

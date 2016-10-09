@@ -1,5 +1,6 @@
 package com.github.myon.fsmlib.immutable;
 
+import com.github.myon.fsmlib.factory.SetFactory;
 import com.github.myon.fsmlib.type.OrderedType;
 
 /**
@@ -9,7 +10,7 @@ import com.github.myon.fsmlib.type.OrderedType;
  * @param <O> super type
  * @param <T> underlying type
  */
-public interface ClosedSet<O, T extends ClosedSet<O, T>> extends OrderedType<O, T> {
+public interface ClosedSet<O, B, T extends ClosedSet<O, B, T>> extends OrderedType<O, T> {
 
 	/**
 	 * unites two types
@@ -54,5 +55,9 @@ public interface ClosedSet<O, T extends ClosedSet<O, T>> extends OrderedType<O, 
 	public default boolean isDisjunced(final T that) {
 		return this.intersection(that).isEmpty();
 	}
+
+	public SetFactory<O, B, T> factory();
+
+	public <R extends ClosedSet<O, B, R>> R convert(final SetFactory<O, B, R> factory);
 
 }

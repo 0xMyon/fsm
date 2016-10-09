@@ -5,18 +5,19 @@ import java.util.Map;
 
 import com.github.myon.fsmlib.container.FiniteSet;
 import com.github.myon.fsmlib.container.Sequence;
+import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.util.Tuple;
 
-public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, T>> implements ClosedLanguage<O, FiniteStateMachine<O, T>> {
+public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> implements ClosedLanguage<O, O, FiniteStateMachine<O, T>> {
 
 
-	public static <O, T extends ClosedSymetricSet<O, T>> FiniteStateMachine<O,T> empty() {
+	public static <O, T extends ClosedSymetricSet<O, O, T>> FiniteStateMachine<O,T> empty() {
 		return new FiniteStateMachine<>(false);
 	}
 
-	public static <O, T extends ClosedSymetricSet<O, T>> FiniteStateMachine<O,T> epsilon() {
+	public static <O, T extends ClosedSymetricSet<O, O, T>> FiniteStateMachine<O,T> epsilon() {
 		return new FiniteStateMachine<>(true);
 	}
 
@@ -29,6 +30,10 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, T>> implements
 		if (epsilon) {
 			this.finals.add(this.initial);
 		}
+	}
+
+	public FiniteStateMachine(final O object) {
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -288,6 +293,42 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, T>> implements
 	private void cleanup() {
 		// TODO Auto-generated method stub
 
+	}
+
+
+	@Override
+	public LanguageFactory<O, O, FiniteStateMachine<O, T>> factory() {
+		return new LanguageFactory<O, O, FiniteStateMachine<O,T>>() {
+
+			@Override
+			public FiniteStateMachine<O, T> sequence(final O... objects) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public FiniteStateMachine<O, T> intersection(final O... objects) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public FiniteStateMachine<O, T> union(final O... objects) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public FiniteStateMachine<O, T> element(final O object) {
+				return new FiniteStateMachine<O, T>(object);
+			}
+		};
+	}
+
+	@Override
+	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

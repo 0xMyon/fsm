@@ -5,11 +5,11 @@ import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 /**
  * @author 0xMyon
  *
- * a mutable symetric set
+ * a mutable symmetric set
  * @param <O> super type
  * @param <T> underling type
  */
-public interface MutableSymetricSet<O, T extends MutableSymetricSet<O, T>> extends MutableSet<O, T>, ClosedSymetricSet<O, T> {
+public interface MutableSymetricSet<O, B, T extends MutableSymetricSet<O, B, T>> extends MutableSet<O, B, T>, ClosedSymetricSet<O, B, T> {
 
 	@Override
 	default T intersection(final T that) {

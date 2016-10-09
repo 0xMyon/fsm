@@ -1,5 +1,8 @@
 package com.github.myon.fsmlib.immutable;
 
+import com.github.myon.fsmlib.factory.SetFactory;
+import com.github.myon.fsmlib.factory.SymetricSetFactory;
+
 /**
  * @author 0xMyon
  *
@@ -7,7 +10,7 @@ package com.github.myon.fsmlib.immutable;
  * @param <O> super type
  * @param <T> underling type
  */
-public interface ClosedSymetricSet<O, T extends ClosedSymetricSet<O, T>> extends ClosedSet<O, T> {
+public interface ClosedSymetricSet<O, B, T extends ClosedSymetricSet<O, B, T>> extends ClosedSet<O, B, T> {
 
 	/**
 	 * inverts the type
@@ -24,5 +27,16 @@ public interface ClosedSymetricSet<O, T extends ClosedSymetricSet<O, T>> extends
 	default T minus(final T that) {
 		return this.complement().union(that).complement();
 	}
+
+	@Override
+	public SymetricSetFactory<O, B, T> factory();
+
+	@Override
+	public default <R extends ClosedSet<O, B, R>> R convert(final SetFactory<O, B, R> factory) {
+		throw new Error();
+	}
+
+
+	public <R extends ClosedSymetricSet<O, B, R>> R convert(final SymetricSetFactory<O, B, R> factory);
 
 }

@@ -10,12 +10,14 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import com.github.myon.fsmlib.factory.SetFactory;
+import com.github.myon.fsmlib.immutable.ClosedSet;
 import com.github.myon.fsmlib.mutable.MutableSet;
 import com.github.myon.util.Anything;
 
-public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>> {
+public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet<O>> {
 
-	private final Set<O> data = new HashSet<>();
+	protected final Set<O> data = new HashSet<>();
 
 	@SafeVarargs
 	public FiniteSet(final O... objects) {
@@ -48,6 +50,7 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>
 	public void subtract(final FiniteSet<O> that) {
 		this.data.removeAll(that.data);
 	}
+
 
 	@Override
 	public void unite(final FiniteSet<O> that) {
@@ -163,6 +166,31 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>
 		}
 		return result;
 	}
+
+
+	@Override
+	public SetFactory<O, O, FiniteSet<O>> factory() {
+		return new SetFactory<O, O, FiniteSet<O>>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public FiniteSet<O> union(final O... objects) {
+				return new FiniteSet<>(objects);
+			}
+		};
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedSet<O, O, R>> R convert(final SetFactory<O, O, R> factory)  {
+		return factory.union( (O[]) this.data.toArray()  );
+	}
+
+
+
+
+
+
 
 
 

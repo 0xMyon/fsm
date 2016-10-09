@@ -1,5 +1,7 @@
 package com.github.myon.fsmlib.immutable;
 
+import com.github.myon.fsmlib.factory.SequenceFactory;
+
 /**
  *
  * @author 0xMyon
@@ -7,7 +9,7 @@ package com.github.myon.fsmlib.immutable;
  * @param <O> element type
  * @param <T> underling type
  */
-public interface ClosedSequence<O, T extends ClosedSequence<O, T>> {
+public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T>> {
 
 	/**
 	 * concatenates two sequences
@@ -27,6 +29,11 @@ public interface ClosedSequence<O, T extends ClosedSequence<O, T>> {
 	 * @return true, if the sequence is epsilon
 	 */
 	public boolean isEpsilon();
+
+
+	public SequenceFactory<O, B, T> factory();
+
+	public <R extends ClosedSequence<O, B, R>> R convert(final SequenceFactory<O, B, R> factory);
 
 
 }

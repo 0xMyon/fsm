@@ -1,6 +1,7 @@
 package com.github.myon.fsmlib.expression;
 
 import com.github.myon.fsmlib.container.Sequence;
+import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -10,28 +11,36 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public abstract class Expression<O, T extends ClosedLanguage<O, T>> implements ClosedLanguage<O, Expression<O,T>> {
+public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implements ClosedLanguage<O, O, Expression<O,T>> {
 
-	public abstract T evaluate();
+	private final LanguageFactory<O, O, T> factory;
+
+	public Expression(final LanguageFactory<O, O, T> factory) {
+		this.factory = factory;
+	}
+
+	public T evaluate() {
+		return this.convert(this.factory);
+	}
 
 	@Override
 	public Expression<O,T> complement() {
-		return ComplementExpression.create(this);
+		return ComplementExpression.create(this.factory, this);
 	}
 
 	@Override
 	public Expression<O,T> union(final Expression<O,T> that) {
-		return UnionExpression.create(this, that);
+		return UnionExpression.create(this.factory, this, that);
 	}
 
 	@Override
 	public Expression<O,T> concat(final Expression<O,T> that) {
-		return SequenceExpression.create(this,that);
+		return SequenceExpression.create(this.factory, this,that);
 	}
 
 	@Override
 	public Expression<O,T> iteration() {
-		return IterationExpression.create(this);
+		return IterationExpression.create(this.factory, this);
 	}
 
 	@Override
@@ -66,5 +75,34 @@ public abstract class Expression<O, T extends ClosedLanguage<O, T>> implements C
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	@Override
+	public LanguageFactory<O, O, Expression<O, T>> factory() {
+		return new LanguageFactory<O, O, Expression<O,T>>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public Expression<O, T> sequence( final O... objects) {
+				return new SequenceExpression<>(Expression.this.factory, objects);
+			}
+			@Override
+			@SuppressWarnings("unchecked")
+			public Expression<O, T> intersection(final O... objects) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			@Override
+			@SuppressWarnings("unchecked")
+			public Expression<O, T> union(final O... objects) {
+				return new UnionExpression<>(Expression.this.factory, objects);
+			}
+			@Override
+			public Expression<O, T> element(final O object) {
+				return new ElementaryExpression<O, T>(Expression.this.factory, object);
+			}
+		};
+	}
+
+
 
 }

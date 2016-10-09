@@ -9,12 +9,21 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import com.github.myon.fsmlib.factory.SequenceFactory;
+import com.github.myon.fsmlib.immutable.ClosedSequence;
 import com.github.myon.fsmlib.mutable.MutableSequence;
 import com.github.myon.util.Anything;
 
-public class Sequence<O> extends Anything implements MutableSequence<O, Sequence<O>> {
+public class Sequence<O> extends Anything implements MutableSequence<O, O, Sequence<O>> {
 
 	private final List<O> data = new LinkedList<>();
+
+	@SafeVarargs
+	public Sequence(final O... objects) {
+		for(final O object: objects) {
+			this.data.add(object);
+		}
+	}
 
 	@Override
 	public boolean isFinite() {
@@ -116,6 +125,25 @@ public class Sequence<O> extends Anything implements MutableSequence<O, Sequence
 			result = aggregator.apply(object, result);
 		}
 		return result;
+	}
+
+
+	@Override
+	public SequenceFactory<O, O, Sequence<O>> factory() {
+		return new SequenceFactory<O, O, Sequence<O>>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public Sequence<O> sequence(final O... objects) {
+				return new Sequence<>(objects);
+			}
+		};
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedSequence<O, O, R>> R convert(final SequenceFactory<O, O, R> factory) {
+		return factory.sequence( (O[]) this.data.toArray()  );
 	}
 
 }
