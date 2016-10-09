@@ -142,6 +142,10 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 			public SymetricSet<O> element(final O object) {
 				return new SymetricSet<O>(false, object);
 			}
+			@Override
+			public SymetricSet<O> empty() {
+				return new SymetricSet<O>(false);
+			}
 		};
 	}
 

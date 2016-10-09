@@ -82,23 +82,21 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implement
 		return new LanguageFactory<O, O, Expression<O,T>>() {
 			@Override
 			@SuppressWarnings("unchecked")
-			public Expression<O, T> sequence( final O... objects) {
-				return new SequenceExpression<>(Expression.this.factory, objects);
-			}
-			@Override
-			@SuppressWarnings("unchecked")
 			public Expression<O, T> intersection(final O... objects) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 			@Override
-			@SuppressWarnings("unchecked")
-			public Expression<O, T> union(final O... objects) {
-				return new UnionExpression<>(Expression.this.factory, objects);
-			}
-			@Override
 			public Expression<O, T> element(final O object) {
 				return new ElementaryExpression<O, T>(Expression.this.factory, object);
+			}
+			@Override
+			public Expression<O, T> epsilon() {
+				return new SequenceExpression<>(Expression.this.factory);
+			}
+			@Override
+			public Expression<O, T> empty() {
+				return new UnionExpression<>(Expression.this.factory);
 			}
 		};
 	}
