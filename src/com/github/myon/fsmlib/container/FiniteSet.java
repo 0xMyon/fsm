@@ -167,6 +167,17 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 		return result;
 	}
 
+	public boolean removeAll(final Predicate<O> predicate) {
+		boolean result = false;
+		final Iterator<O> it = this.data.iterator();
+		while(it.hasNext()) {
+			if (predicate.test(it.next())) {
+				it.remove();
+				result = true;
+			}
+		}
+		return result;
+	}
 
 	@Override
 	public SetFactory<O, O, FiniteSet<O>> factory() {
@@ -188,11 +199,14 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 	}
 
 
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R extends ClosedSet<O, O, R>> R convert(final SetFactory<O, O, R> factory)  {
 		return factory.union( (O[]) this.data.toArray()  );
 	}
+
+
 
 
 
