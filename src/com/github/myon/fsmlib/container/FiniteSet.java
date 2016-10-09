@@ -2,11 +2,13 @@ package com.github.myon.fsmlib.container;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 import com.github.myon.fsmlib.mutable.MutableSet;
+import com.github.myon.util.Anything;
 
-public class FiniteSet<O> implements MutableSet<O, FiniteSet<O>> {
+public class FiniteSet<O> extends Anything implements MutableSet<O, FiniteSet<O>> {
 
 	private final Set<O> data = new HashSet<>();
 
@@ -75,6 +77,27 @@ public class FiniteSet<O> implements MutableSet<O, FiniteSet<O>> {
 	@Override
 	public void clear() {
 		this.data.clear();
+	}
+
+
+
+	@Override
+	public String toString() {
+		return this.data.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.data);
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof FiniteSet) {
+			final FiniteSet<?> that = (FiniteSet<?>) other;
+			return this.data.equals(that.data);
+		}
+		return false;
 	}
 
 }

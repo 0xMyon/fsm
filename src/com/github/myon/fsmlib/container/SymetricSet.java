@@ -1,8 +1,11 @@
 package com.github.myon.fsmlib.container;
 
-import com.github.myon.fsmlib.mutable.MutableSymetricSet;
+import java.util.Objects;
 
-public class SymetricSet<O> implements MutableSymetricSet<O, SymetricSet<O>> {
+import com.github.myon.fsmlib.mutable.MutableSymetricSet;
+import com.github.myon.util.Anything;
+
+public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, SymetricSet<O>> {
 
 
 	private boolean inverted = false;
@@ -86,6 +89,25 @@ public class SymetricSet<O> implements MutableSymetricSet<O, SymetricSet<O>> {
 	public void clear() {
 		this.inverted = false;
 		this.data.clear();
+	}
+
+	@Override
+	public String toString() {
+		return (this.inverted?"!":"")+this.data.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.data, this.inverted);
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof SymetricSet) {
+			final SymetricSet<?> that = (SymetricSet<?>) other;
+			return this.data.equals(that.data) && this.inverted == that.inverted;
+		}
+		return false;
 	}
 
 
