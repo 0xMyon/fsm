@@ -58,10 +58,11 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 	}
 
 
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public SymetricSet<O> copy() {
-		final SymetricSet<O> result = new SymetricSet<O>();
-		result.unite(this);
+		final SymetricSet<O> result = new SymetricSet<O>(this.inverted, (O[])this.data.data.toArray());
 		return result;
 	}
 
@@ -127,6 +128,20 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 
 	@Override
 	public SymetricSetFactory<O, O, SymetricSet<O>> factory() {
+		return SymetricSet.Factory();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R extends ClosedSymetricSet<O, O, R>> R convert(final SymetricSetFactory<O, O, R> factory) {
+		if (this.inverted) {
+			return factory.intersection((O[])this.data.data.toArray());
+		} else {
+			return factory.union((O[])this.data.data.toArray());
+		}
+	}
+
+	public static <O> SymetricSetFactory<O,O,SymetricSet<O>> Factory() {
 		return new SymetricSetFactory<O, O, SymetricSet<O>>() {
 			@Override
 			@SuppressWarnings("unchecked")
@@ -147,16 +162,6 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 				return new SymetricSet<O>(false);
 			}
 		};
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <R extends ClosedSymetricSet<O, O, R>> R convert(final SymetricSetFactory<O, O, R> factory) {
-		if (this.inverted) {
-			return factory.intersection((O[])this.data.data.toArray());
-		} else {
-			return factory.union((O[])this.data.data.toArray());
-		}
 	}
 
 

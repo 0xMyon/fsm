@@ -43,4 +43,10 @@ public interface ClosedLanguage<O, B, T extends ClosedLanguage<O,B,T>> extends C
 	public <R extends ClosedLanguage<O, B, R>> R convert(final LanguageFactory<O,B, R> factory);
 
 
+	@SuppressWarnings("unchecked")
+	public default boolean contains(final O... objects) {
+		return this.contains(new Sequence<O>(objects));
+	}
+
+
 }
