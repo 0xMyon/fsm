@@ -1,5 +1,6 @@
 package com.github.myon.fsmlib.mutable;
 
+import com.github.myon.fsmlib.container.Sequence;
 import com.github.myon.fsmlib.immutable.ClosedSequence;
 
 /**
@@ -47,5 +48,38 @@ public interface MutableSequence<O, B, T extends MutableSequence<O, B, T>> exten
 	 * @return
 	 */
 	public T copy();
+
+
+	public interface Factory<O, B, T extends MutableSequence<O, B, T>> extends ClosedSequence.Factory<O, B, T> {
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public default T sequence(final B... objects) {
+			final T result = this.epsilon();
+			for (final B object: objects) {
+				result.append(this.element(object));
+			}
+			return result;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public default <R extends ClosedSequence<O, B, R>> T sequence(final R... others) {
+			final T result = this.epsilon();
+			for (final R other: others) {
+				result.append(other.convert(this));
+			}
+			return result;
+		}
+
+		@Override
+		public default <R extends ClosedSequence<O, B, R>> T sequence(final Sequence<R> others) {
+			final T result = this.epsilon();
+			others.forAll((other)-> result.append(other.convert(this)));
+			return result;
+		}
+
+
+	}
 
 }

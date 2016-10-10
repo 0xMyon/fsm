@@ -14,10 +14,10 @@ public class FSMTest {
 
 
 		final FiniteStateMachine<Character, SymetricSet<Character>> a =
-				new FiniteStateMachine<>(SymetricSet.Factory(), 'a');
+				new FiniteStateMachine<Character, SymetricSet<Character>>(new SymetricSet.Factory<>(), 'a');
 
 		final FiniteStateMachine<Character, SymetricSet<Character>> b =
-				new FiniteStateMachine<>(SymetricSet.Factory(), 'b');
+				new FiniteStateMachine<Character, SymetricSet<Character>>(new SymetricSet.Factory<>(), 'b');
 
 
 		System.out.println(a);

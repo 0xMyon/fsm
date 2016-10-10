@@ -25,4 +25,13 @@ public interface MutableLanguage<O, B, T extends MutableLanguage<O, B, T>> exten
 	 */
 	public void iterate();
 
+
+	public static interface Factory<O,B,T extends MutableLanguage<O, B, T>> extends
+	MutableSymetricSet.Factory<Sequence<O>, B, T>,
+	MutableSequence.Factory<O, B, T>,
+	ClosedLanguage.Factory<O, B, T> {
+
+	}
+
+
 }

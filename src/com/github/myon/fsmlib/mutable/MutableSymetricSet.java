@@ -47,4 +47,12 @@ public interface MutableSymetricSet<O, B, T extends MutableSymetricSet<O, B, T>>
 	}
 
 
+
+	public static interface Factory<O,B,T extends MutableSymetricSet<O, B, T>> extends
+	MutableSet.Factory<O, B, T>,
+	ClosedSymetricSet.Factory<O, B, T> {
+
+	}
+
+
 }

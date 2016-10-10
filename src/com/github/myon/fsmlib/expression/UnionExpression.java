@@ -1,7 +1,6 @@
 package com.github.myon.fsmlib.expression;
 
 import com.github.myon.fsmlib.container.FiniteSet;
-import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -16,7 +15,7 @@ public class UnionExpression<O,T extends ClosedLanguage<O,O, T>> extends Express
 	// TODO return elementary on single element
 
 	@SafeVarargs
-	public UnionExpression(final LanguageFactory<O, O, T> factory, final O... objects) {
+	public UnionExpression(final ClosedLanguage.Factory<O, O, T> factory, final O... objects) {
 		super(factory);
 		for(final O object : objects) {
 			this.summands.add(new ElementaryExpression<>(factory, object));
@@ -27,7 +26,7 @@ public class UnionExpression<O,T extends ClosedLanguage<O,O, T>> extends Express
 	private final FiniteSet<Expression<O,T>> summands = new FiniteSet<>();
 
 	@SafeVarargs
-	public static <O,T extends ClosedLanguage<O, O, T>> UnionExpression<O,T> create(final LanguageFactory<O, O, T> factory, final Expression<O,T>... summands) {
+	public static <O,T extends ClosedLanguage<O, O, T>> UnionExpression<O,T> create(final ClosedLanguage.Factory<O, O, T> factory, final Expression<O,T>... summands) {
 		final UnionExpression<O,T> result = new UnionExpression<>(factory);
 		for(final Expression<O,T> summand : summands) {
 			if (summand instanceof UnionExpression) {
@@ -42,7 +41,7 @@ public class UnionExpression<O,T extends ClosedLanguage<O,O, T>> extends Express
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+	public <R extends ClosedLanguage<O, O, R>> R convert(final ClosedLanguage.Factory<O, O, R> factory) {
 		return this.summands.aggregate(()->factory.union(), (summand, result)-> {
 			return summand.convert(factory).union(result);
 		});

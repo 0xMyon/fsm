@@ -1,6 +1,6 @@
 package com.github.myon.fsmlib.immutable;
 
-import com.github.myon.fsmlib.factory.SetFactory;
+import com.github.myon.fsmlib.factory.ElementaryFactory;
 import com.github.myon.fsmlib.type.OrderedType;
 
 /**
@@ -56,8 +56,34 @@ public interface ClosedSet<O, B, T extends ClosedSet<O, B, T>> extends OrderedTy
 		return this.intersection(that).isEmpty();
 	}
 
-	public SetFactory<O, B, T> factory();
+	public Factory<O, B, T> factory();
 
-	public <R extends ClosedSet<O, B, R>> R convert(final SetFactory<O, B, R> factory);
+	public <R extends ClosedSet<O, B, R>> R convert(final Factory<O, B, R> factory);
+
+	public static interface Factory<O, B, T extends ClosedSet<O ,B, T>> extends ElementaryFactory<B, T> {
+
+		public T empty();
+
+		@SuppressWarnings("unchecked")
+		public default T union(final B... objects) {
+			T result = this.empty();
+			for (final B object: objects) {
+				result = result.union(this.element(object));
+			}
+			return result;
+		}
+
+		@SuppressWarnings("unchecked")
+		public default <R extends ClosedSet<O, B, R>> T union(final R... others) {
+			T result = this.empty();
+			for (final R other: others) {
+				result = result.union(other.convert(this));
+			}
+			return result;
+		}
+
+
+	}
+
 
 }

@@ -9,14 +9,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import com.github.myon.fsmlib.factory.SequenceFactory;
 import com.github.myon.fsmlib.immutable.ClosedSequence;
 import com.github.myon.fsmlib.mutable.MutableSequence;
 import com.github.myon.util.Anything;
 
 public class Sequence<O> extends Anything implements MutableSequence<O, O, Sequence<O>> {
 
-	private final List<O> data = new LinkedList<>();
+	protected final List<O> data = new LinkedList<>();
 
 	@SafeVarargs
 	public Sequence(final O... objects) {
@@ -92,11 +91,11 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 		}
 	}
 
-	public FiniteSet<O> findAll(final Predicate<O> predicate) {
-		final FiniteSet<O> result = new FiniteSet<>();
+	public Sequence<O> findAll(final Predicate<O> predicate) {
+		final Sequence<O> result = new Sequence<>();
 		for(final O object: this.data) {
 			if (predicate.test(object)) {
-				result.add(object);
+				result.append(object);
 			}
 		}
 		return result;
@@ -111,10 +110,10 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 		return null;
 	}
 
-	public <R> FiniteSet<R> map(final Function<O,R> function) {
-		final FiniteSet<R> result = new FiniteSet<>();
+	public <R> Sequence<R> map(final Function<O,R> function) {
+		final Sequence<R> result = new Sequence<>();
 		for(final O object: this.data) {
-			result.add(function.apply(object));
+			result.append(function.apply(object));
 		}
 		return result;
 	}
@@ -129,29 +128,31 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 
 
 	@Override
-	public SequenceFactory<O, O, Sequence<O>> factory() {
-		return new SequenceFactory<O, O, Sequence<O>>() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public Sequence<O> sequence(final O... objects) {
-				return new Sequence<>(objects);
-			}
-			@Override
-			public Sequence<O> element(final O object) {
-				return new Sequence<>(object);
-			}
-			@Override
-			public Sequence<O> epsilon() {
-				return new Sequence<>();
-			}
-		};
+	public Factory<O> factory() {
+		return new Factory<O>();
 	}
 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedSequence<O, O, R>> R convert(final SequenceFactory<O, O, R> factory) {
+	public <R extends ClosedSequence<O, O, R>> R convert(final ClosedSequence.Factory<O, O, R> factory) {
 		return factory.sequence( (O[]) this.data.toArray()  );
+	}
+
+	public static final class Factory<O> implements MutableSequence.Factory<O, O, Sequence<O>> {
+		@Override
+		@SuppressWarnings("unchecked")
+		public Sequence<O> sequence(final O... objects) {
+			return new Sequence<>(objects);
+		}
+		@Override
+		public Sequence<O> element(final O object) {
+			return new Sequence<>(object);
+		}
+		@Override
+		public Sequence<O> epsilon() {
+			return new Sequence<>();
+		}
 	}
 
 }

@@ -15,5 +15,14 @@ public interface SetFactory<O, B, T extends ClosedSet<O ,B, T>> extends Elementa
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public default <R extends ClosedSet<O, B, R>> T union(final R... others) {
+		T result = this.empty();
+		for (final R other: others) {
+			result = result.union(other.convert(this));
+		}
+		return result;
+	}
+
 
 }

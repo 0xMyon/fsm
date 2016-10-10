@@ -1,7 +1,6 @@
 package com.github.myon.fsmlib.expression;
 
 import com.github.myon.fsmlib.container.Sequence;
-import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -13,9 +12,9 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  */
 public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implements ClosedLanguage<O, O, Expression<O,T>> {
 
-	private final LanguageFactory<O, O, T> factory;
+	private final ClosedLanguage.Factory<O, O, T> factory;
 
-	public Expression(final LanguageFactory<O, O, T> factory) {
+	public Expression(final ClosedLanguage.Factory<O, O, T> factory) {
 		this.factory = factory;
 	}
 
@@ -78,27 +77,36 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implement
 
 
 	@Override
-	public LanguageFactory<O, O, Expression<O, T>> factory() {
-		return new LanguageFactory<O, O, Expression<O,T>>() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public Expression<O, T> intersection(final O... objects) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			@Override
-			public Expression<O, T> element(final O object) {
-				return new ElementaryExpression<O, T>(Expression.this.factory, object);
-			}
-			@Override
-			public Expression<O, T> epsilon() {
-				return new SequenceExpression<>(Expression.this.factory);
-			}
-			@Override
-			public Expression<O, T> empty() {
-				return new UnionExpression<>(Expression.this.factory);
-			}
-		};
+	public Factory<O, T> factory() {
+		return new Factory<>();
+	}
+
+	public static final class Factory<O,T extends ClosedLanguage<O, O, T>> implements
+	ClosedLanguage.Factory<O, O, Expression<O,T>> {
+
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public Expression<O, T> intersection(final O... objects) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		// TODO replace null
+
+		@Override
+		public Expression<O, T> element(final O object) {
+			return new ElementaryExpression<O, T>(null, object);
+		}
+		@Override
+		public Expression<O, T> epsilon() {
+			return new SequenceExpression<>(null);
+		}
+		@Override
+		public Expression<O, T> empty() {
+			return new UnionExpression<>(null);
+		}
+
 	}
 
 

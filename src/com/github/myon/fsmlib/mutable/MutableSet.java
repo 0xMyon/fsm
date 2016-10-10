@@ -77,4 +77,28 @@ public interface MutableSet<O, B, T extends MutableSet<O, B, T>> extends ClosedS
 	void clear();
 
 
+	public static interface Factory<O, B, T extends MutableSet<O, B, T>> extends ClosedSet.Factory<O, B, T> {
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public default T union(final B... objects) {
+			final T result = this.empty();
+			for (final B object: objects) {
+				result.unite(this.element(object));
+			}
+			return result;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public default <R extends ClosedSet<O, B, R>> T union(final R... others) {
+			final T result = this.empty();
+			for (final R other: others) {
+				result.unite(other.convert(this));
+			}
+			return result;
+		}
+
+	}
+
 }

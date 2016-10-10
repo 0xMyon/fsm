@@ -6,26 +6,25 @@ import java.util.Objects;
 
 import com.github.myon.fsmlib.container.FiniteSet;
 import com.github.myon.fsmlib.container.Sequence;
-import com.github.myon.fsmlib.factory.LanguageFactory;
-import com.github.myon.fsmlib.factory.SymetricSetFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
+import com.github.myon.util.Pair;
 import com.github.myon.util.Tuple;
 
 public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> implements ClosedLanguage<O, O, FiniteStateMachine<O, T>> {
 
-	private final SymetricSetFactory<O, O, T> factory;
+	private final ClosedSymetricSet.Factory<O, O, T> factory;
 
-	public FiniteStateMachine(final SymetricSetFactory<O, O, T> factory, final O object) {
+	public FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final O object) {
 		this(factory, factory.element(object), false);
 	}
 
-	private FiniteStateMachine(final SymetricSetFactory<O, O, T> factory, final T type, final boolean epsilon) {
+	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final T type, final boolean epsilon) {
 		this(factory, epsilon);
 		this.transition(this.initial, type, this.finals);
 	}
 
-	private FiniteStateMachine(final SymetricSetFactory<O, O, T> factory, final boolean epsilon) {
+	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final boolean epsilon) {
 		this.factory = factory;
 		this.states = new FiniteSet<>();
 		this.delta = new FiniteSet<>();
@@ -158,6 +157,12 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> impleme
 		public boolean isUnused() {
 			return !this.isInitial() && !this.isFinal() && (this.source().isEmpty() || this.target().isEmpty()) ||
 					!this.isInitial() && this.source().isEmpty();
+		}
+
+
+		public FiniteSet<T> types() {
+			// TODO disjuncted types
+			return null;
 		}
 
 	}
@@ -341,8 +346,18 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> impleme
 
 	private void cleanup() {
 		this.deleteUnreachableStates();
+		this.minimize();
 	}
 
+	private void minimize() {
+		final FiniteSet<Pair<State>> x = new FiniteSet<>();
+		this.states.forAll((f)-> this.states.forAll((s)-> {
+			if (f != s && f.isFinal() != s.isFinal()) {
+				x.add(new Pair<State>(f,s));
+			}
+		}));
+
+	}
 
 	private void deleteUnreachableStates() {
 		while(this.states.removeAll(
@@ -350,37 +365,46 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> impleme
 				)) {}
 	}
 
-	@Override
-	public LanguageFactory<O, O, FiniteStateMachine<O, T>> factory() {
-		return new LanguageFactory<O, O, FiniteStateMachine<O,T>>() {
+	public static final class Factory<O,T extends ClosedSymetricSet<O, O, T>> implements
+	ClosedLanguage.Factory<O, O, FiniteStateMachine<O,T>> {
 
-			@Override
-			public FiniteStateMachine<O, T> intersection(final O... objects) {
-				// TODO Auto-generated method stub
-				return null;
-			}
 
-			@Override
-			public FiniteStateMachine<O, T> element(final O object) {
-				return new FiniteStateMachine<>(FiniteStateMachine.this.factory, object);
-			}
+		@Override
+		@SuppressWarnings("unchecked")
+		public FiniteStateMachine<O, T> intersection(final O... objects) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-			@Override
-			public FiniteStateMachine<O, T> epsilon() {
-				return new FiniteStateMachine<>(FiniteStateMachine.this.factory, true);
-			}
+		// TODO replace null
 
-			@Override
-			public FiniteStateMachine<O, T> empty() {
-				return new FiniteStateMachine<>(FiniteStateMachine.this.factory, false);
-			}
-		};
+		@Override
+		public FiniteStateMachine<O, T> element(final O object) {
+			return new FiniteStateMachine<>(null, object);
+		}
+
+		@Override
+		public FiniteStateMachine<O, T> epsilon() {
+			return new FiniteStateMachine<>(null, true);
+		}
+
+		@Override
+		public FiniteStateMachine<O, T> empty() {
+			return new FiniteStateMachine<>(null, false);
+		}
+
 	}
 
 	@Override
-	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+	public <R extends ClosedLanguage<O, O, R>> R convert(final ClosedLanguage.Factory<O, O, R> factory) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public Factory<O, T> factory() {
+		return new Factory<>();
 	}
 
 }

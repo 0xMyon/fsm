@@ -2,7 +2,6 @@ package com.github.myon.fsmlib.container;
 
 import java.util.Objects;
 
-import com.github.myon.fsmlib.factory.SymetricSetFactory;
 import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.fsmlib.mutable.MutableSymetricSet;
 import com.github.myon.util.Anything;
@@ -11,7 +10,7 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 
 
 	private boolean inverted = false;
-	private final FiniteSet<O> data = new FiniteSet<>();
+	private final FiniteSet<O> data = new FiniteSet<O>();
 
 	@SafeVarargs
 	public SymetricSet(final O... objects) {
@@ -127,13 +126,13 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 
 
 	@Override
-	public SymetricSetFactory<O, O, SymetricSet<O>> factory() {
-		return SymetricSet.Factory();
+	public Factory<O> factory() {
+		return new Factory<O>();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedSymetricSet<O, O, R>> R convert(final SymetricSetFactory<O, O, R> factory) {
+	public <R extends ClosedSymetricSet<O, O, R>> R convert(final ClosedSymetricSet.Factory<O, O, R> factory) {
 		if (this.inverted) {
 			return factory.intersection((O[])this.data.data.toArray());
 		} else {
@@ -141,28 +140,25 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 		}
 	}
 
-	public static <O> SymetricSetFactory<O,O,SymetricSet<O>> Factory() {
-		return new SymetricSetFactory<O, O, SymetricSet<O>>() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public SymetricSet<O> union(final O... objects) {
-				return new SymetricSet<O>(false, objects);
-			}
-			@Override
-			@SuppressWarnings("unchecked")
-			public SymetricSet<O> intersection(final O... objects) {
-				return new SymetricSet<O>(true, objects);
-			}
-			@Override
-			public SymetricSet<O> element(final O object) {
-				return new SymetricSet<O>(false, object);
-			}
-			@Override
-			public SymetricSet<O> empty() {
-				return new SymetricSet<O>(false);
-			}
-		};
+	public static final class Factory<O> implements MutableSymetricSet.Factory<O, O, SymetricSet<O>> {
+		@Override
+		@SuppressWarnings("unchecked")
+		public SymetricSet<O> union(final O... objects) {
+			return new SymetricSet<O>(false, objects);
+		}
+		@Override
+		@SuppressWarnings("unchecked")
+		public SymetricSet<O> intersection(final O... objects) {
+			return new SymetricSet<O>(true, objects);
+		}
+		@Override
+		public SymetricSet<O> element(final O object) {
+			return new SymetricSet<O>(false, object);
+		}
+		@Override
+		public SymetricSet<O> empty() {
+			return new SymetricSet<O>(false);
+		}
 	}
-
 
 }

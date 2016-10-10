@@ -1,9 +1,6 @@
 package com.github.myon.fsmlib.immutable;
 
 import com.github.myon.fsmlib.container.Sequence;
-import com.github.myon.fsmlib.factory.LanguageFactory;
-import com.github.myon.fsmlib.factory.SequenceFactory;
-import com.github.myon.fsmlib.factory.SymetricSetFactory;
 
 /**
  *
@@ -28,24 +25,28 @@ public interface ClosedLanguage<O, B, T extends ClosedLanguage<O,B,T>> extends C
 
 
 	@Override
-	public LanguageFactory<O, B, T> factory();
+	public Factory<O, B, T> factory();
 
 	@Override
-	public default <R extends ClosedSymetricSet<Sequence<O>, B, R>> R convert(final SymetricSetFactory<Sequence<O>, B, R> factory) {
+	public default <R extends ClosedSymetricSet<Sequence<O>, B, R>> R convert(final ClosedSymetricSet.Factory<Sequence<O>, B, R> factory) {
 		throw new Error();
 	}
 
 	@Override
-	public default <R extends ClosedSequence<O, B, R>> R convert(final SequenceFactory<O,B, R> factory) {
+	public default <R extends ClosedSequence<O, B, R>> R convert(final ClosedSequence.Factory<O,B, R> factory) {
 		throw new Error();
 	}
 
-	public <R extends ClosedLanguage<O, B, R>> R convert(final LanguageFactory<O,B, R> factory);
+	public <R extends ClosedLanguage<O, B, R>> R convert(final Factory<O,B, R> factory);
 
 
 	@SuppressWarnings("unchecked")
 	public default boolean contains(final O... objects) {
 		return this.contains(new Sequence<O>(objects));
+	}
+
+	public static interface Factory<O, B, T extends ClosedLanguage<O, B, T>> extends ClosedSequence.Factory<O, B, T>, ClosedSymetricSet.Factory<Sequence<O>, B, T> {
+
 	}
 
 

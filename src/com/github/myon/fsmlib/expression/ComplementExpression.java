@@ -1,6 +1,5 @@
 package com.github.myon.fsmlib.expression;
 
-import com.github.myon.fsmlib.factory.LanguageFactory;
 import com.github.myon.fsmlib.immutable.ClosedLanguage;
 
 /**
@@ -14,12 +13,12 @@ public class ComplementExpression<O, T extends ClosedLanguage<O, O, T>> extends 
 
 	private final Expression<O,T> complement;
 
-	private ComplementExpression(final LanguageFactory<O, O, T> factory,  final Expression<O,T> complement) {
+	private ComplementExpression(final ClosedLanguage.Factory<O, O, T> factory,  final Expression<O,T> complement) {
 		super(factory);
 		this.complement = complement;
 	}
 
-	public static <O, T extends ClosedLanguage<O, O, T>> Expression<O,T> create(final LanguageFactory<O, O, T> factory, final Expression<O,T> complement) {
+	public static <O, T extends ClosedLanguage<O, O, T>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T> factory, final Expression<O,T> complement) {
 		if (complement instanceof ComplementExpression) {
 			return ((ComplementExpression<O,T>) complement).complement;
 		} else {
@@ -30,7 +29,7 @@ public class ComplementExpression<O, T extends ClosedLanguage<O, O, T>> extends 
 
 
 	@Override
-	public <R extends ClosedLanguage<O, O, R>> R convert(final LanguageFactory<O, O, R> factory) {
+	public <R extends ClosedLanguage<O, O, R>> R convert(final ClosedLanguage.Factory<O, O, R> factory) {
 		return this.complement.convert(factory).complement();
 	}
 

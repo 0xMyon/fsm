@@ -1,8 +1,5 @@
 package com.github.myon.fsmlib.immutable;
 
-import com.github.myon.fsmlib.factory.SetFactory;
-import com.github.myon.fsmlib.factory.SymetricSetFactory;
-
 /**
  * @author 0xMyon
  *
@@ -29,14 +26,22 @@ public interface ClosedSymetricSet<O, B, T extends ClosedSymetricSet<O, B, T>> e
 	}
 
 	@Override
-	public SymetricSetFactory<O, B, T> factory();
+	public Factory<O, B, T> factory();
 
 	@Override
-	public default <R extends ClosedSet<O, B, R>> R convert(final SetFactory<O, B, R> factory) {
+	public default <R extends ClosedSet<O, B, R>> R convert(final ClosedSet.Factory<O, B, R> factory) {
 		throw new Error();
 	}
 
+	public <R extends ClosedSymetricSet<O, B, R>> R convert(final ClosedSymetricSet.Factory<O, B, R> factory);
 
-	public <R extends ClosedSymetricSet<O, B, R>> R convert(final SymetricSetFactory<O, B, R> factory);
+	public static interface Factory<O, B, T extends ClosedSymetricSet<O, B, T>> extends ClosedSet.Factory<O, B, T> {
+
+		@SuppressWarnings("unchecked")
+		public T intersection(final B... objects);
+
+
+
+	}
 
 }
