@@ -10,7 +10,7 @@ import com.github.myon.fsmlib.type.OrderedType;
  * @param <O> super type
  * @param <T> underlying type
  */
-public interface ClosedSet<O, B, T extends ClosedSet<O, B, T>> extends OrderedType<O, T> {
+public interface ClosedSet<O, B, T extends ClosedSet<O, B, T, F>, F extends ClosedSet.Factory<O, B, T, F>> extends OrderedType<O, T> {
 
 	/**
 	 * unites two types
@@ -56,11 +56,11 @@ public interface ClosedSet<O, B, T extends ClosedSet<O, B, T>> extends OrderedTy
 		return this.intersection(that).isEmpty();
 	}
 
-	public Factory<O, B, T> factory();
+	public F factory();
 
-	public <R extends ClosedSet<O, B, R>> R convert(final Factory<O, B, R> factory);
+	public <R extends ClosedSet<O, B, R, ?>> R convert(final Factory<O, B, R, ?> factory);
 
-	public static interface Factory<O, B, T extends ClosedSet<O ,B, T>> extends ElementaryFactory<B, T> {
+	public static interface Factory<O, B, T extends ClosedSet<O ,B, T, F>, F extends Factory<O,B,T,F>> extends ElementaryFactory<B, T> {
 
 		public T empty();
 
@@ -74,7 +74,7 @@ public interface ClosedSet<O, B, T extends ClosedSet<O, B, T>> extends OrderedTy
 		}
 
 		@SuppressWarnings("unchecked")
-		public default <R extends ClosedSet<O, B, R>> T union(final R... others) {
+		public default <R extends ClosedSet<O, B, R, ?>> T union(final R... others) {
 			T result = this.empty();
 			for (final R other: others) {
 				result = result.union(other.convert(this));

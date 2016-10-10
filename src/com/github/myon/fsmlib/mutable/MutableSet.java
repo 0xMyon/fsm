@@ -9,7 +9,7 @@ import com.github.myon.fsmlib.immutable.ClosedSet;
  * @param <O> super type
  * @param <T> underling type
  */
-public interface MutableSet<O, B, T extends MutableSet<O, B, T>> extends ClosedSet<O, B, T> {
+public interface MutableSet<O, B, T extends MutableSet<O, B, T, F>, F extends MutableSet.Factory<O, B, T, F>> extends ClosedSet<O, B, T, F> {
 
 	/**
 	 * removes all objects that are in that set
@@ -77,7 +77,8 @@ public interface MutableSet<O, B, T extends MutableSet<O, B, T>> extends ClosedS
 	void clear();
 
 
-	public static interface Factory<O, B, T extends MutableSet<O, B, T>> extends ClosedSet.Factory<O, B, T> {
+	public static interface Factory<O, B, T extends MutableSet<O, B, T, F>, F extends Factory<O,B,T,F>> extends
+	ClosedSet.Factory<O, B, T, F> {
 
 		@Override
 		@SuppressWarnings("unchecked")
@@ -91,7 +92,7 @@ public interface MutableSet<O, B, T extends MutableSet<O, B, T>> extends ClosedS
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public default <R extends ClosedSet<O, B, R>> T union(final R... others) {
+		public default <R extends ClosedSet<O, B, R, ?>> T union(final R... others) {
 			final T result = this.empty();
 			for (final R other: others) {
 				result.unite(other.convert(this));

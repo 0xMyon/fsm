@@ -11,20 +11,20 @@ import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.util.Pair;
 import com.github.myon.util.Tuple;
 
-public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> implements ClosedLanguage<O, O, FiniteStateMachine<O, T>> {
+public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> implements ClosedLanguage<O, O, FiniteStateMachine<O, T>, FiniteStateMachine.Factory<O, T>> {
 
-	private final ClosedSymetricSet.Factory<O, O, T> factory;
+	private final ClosedSymetricSet.Factory<O, O, T, ?> factory;
 
-	public FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final O object) {
+	public FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T, ?> factory, final O object) {
 		this(factory, factory.element(object), false);
 	}
 
-	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final T type, final boolean epsilon) {
+	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T, ?> factory, final T type, final boolean epsilon) {
 		this(factory, epsilon);
 		this.transition(this.initial, type, this.finals);
 	}
 
-	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T> factory, final boolean epsilon) {
+	private FiniteStateMachine(final ClosedSymetricSet.Factory<O, O, T, ?> factory, final boolean epsilon) {
 		this.factory = factory;
 		this.states = new FiniteSet<>();
 		this.delta = new FiniteSet<>();
@@ -365,8 +365,8 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> impleme
 				)) {}
 	}
 
-	public static final class Factory<O,T extends ClosedSymetricSet<O, O, T>> implements
-	ClosedLanguage.Factory<O, O, FiniteStateMachine<O,T>> {
+	public static final class Factory<O,T extends ClosedSymetricSet<O, O, T, ?>> implements
+	ClosedLanguage.Factory<O, O, FiniteStateMachine<O,T>, Factory<O,T>> {
 
 
 		@Override
@@ -396,7 +396,7 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T>> impleme
 	}
 
 	@Override
-	public <R extends ClosedLanguage<O, O, R>> R convert(final ClosedLanguage.Factory<O, O, R> factory) {
+	public <R extends ClosedLanguage<O, O, R, ?>> R convert(final ClosedLanguage.Factory<O, O, R, ?> factory) {
 		// TODO Auto-generated method stub
 		return null;
 	}

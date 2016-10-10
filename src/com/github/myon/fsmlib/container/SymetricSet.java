@@ -6,7 +6,8 @@ import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.fsmlib.mutable.MutableSymetricSet;
 import com.github.myon.util.Anything;
 
-public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O, SymetricSet<O>> {
+public class SymetricSet<O> extends Anything
+implements MutableSymetricSet<O, O, SymetricSet<O>, SymetricSet.Factory<O>> {
 
 
 	private boolean inverted = false;
@@ -125,14 +126,10 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 	}
 
 
-	@Override
-	public Factory<O> factory() {
-		return new Factory<O>();
-	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedSymetricSet<O, O, R>> R convert(final ClosedSymetricSet.Factory<O, O, R> factory) {
+	public <R extends ClosedSymetricSet<O, O, R, ?>> R convert(final ClosedSymetricSet.Factory<O, O, R, ?> factory) {
 		if (this.inverted) {
 			return factory.intersection((O[])this.data.data.toArray());
 		} else {
@@ -140,7 +137,7 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 		}
 	}
 
-	public static final class Factory<O> implements MutableSymetricSet.Factory<O, O, SymetricSet<O>> {
+	public static final class Factory<O> implements MutableSymetricSet.Factory<O, O, SymetricSet<O>, Factory<O>> {
 		@Override
 		@SuppressWarnings("unchecked")
 		public SymetricSet<O> union(final O... objects) {
@@ -160,5 +157,17 @@ public class SymetricSet<O> extends Anything implements MutableSymetricSet<O, O,
 			return new SymetricSet<O>(false);
 		}
 	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Factory<O> factory() {
+		try {
+			return Factory.class.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new Error();
+		}
+	}
+
 
 }

@@ -7,7 +7,7 @@ package com.github.myon.fsmlib.immutable;
  * @param <O> super type
  * @param <T> underling type
  */
-public interface ClosedSymetricSet<O, B, T extends ClosedSymetricSet<O, B, T>> extends ClosedSet<O, B, T> {
+public interface ClosedSymetricSet<O, B, T extends ClosedSymetricSet<O, B, T, F>, F extends ClosedSymetricSet.Factory<O,B,T,F>> extends ClosedSet<O, B, T, F> {
 
 	/**
 	 * inverts the type
@@ -26,21 +26,16 @@ public interface ClosedSymetricSet<O, B, T extends ClosedSymetricSet<O, B, T>> e
 	}
 
 	@Override
-	public Factory<O, B, T> factory();
-
-	@Override
-	public default <R extends ClosedSet<O, B, R>> R convert(final ClosedSet.Factory<O, B, R> factory) {
+	public default <R extends ClosedSet<O, B, R, ?>> R convert(final ClosedSet.Factory<O, B, R, ?> factory) {
 		throw new Error();
 	}
 
-	public <R extends ClosedSymetricSet<O, B, R>> R convert(final ClosedSymetricSet.Factory<O, B, R> factory);
+	public <R extends ClosedSymetricSet<O, B, R, ?>> R convert(final ClosedSymetricSet.Factory<O, B, R, ?> factory);
 
-	public static interface Factory<O, B, T extends ClosedSymetricSet<O, B, T>> extends ClosedSet.Factory<O, B, T> {
+	public static interface Factory<O, B, T extends ClosedSymetricSet<O, B, T, F>, F extends Factory<O,B,T,F>> extends ClosedSet.Factory<O, B, T, F> {
 
 		@SuppressWarnings("unchecked")
 		public T intersection(final B... objects);
-
-
 
 	}
 

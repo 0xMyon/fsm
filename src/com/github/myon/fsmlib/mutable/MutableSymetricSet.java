@@ -9,7 +9,8 @@ import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
  * @param <O> super type
  * @param <T> underling type
  */
-public interface MutableSymetricSet<O, B, T extends MutableSymetricSet<O, B, T>> extends MutableSet<O, B, T>, ClosedSymetricSet<O, B, T> {
+public interface MutableSymetricSet<O, B, T extends MutableSymetricSet<O, B, T, F>, F extends MutableSymetricSet.Factory<O, B, T, F>>
+extends MutableSet<O, B, T, F>, ClosedSymetricSet<O, B, T, F> {
 
 	@Override
 	default T intersection(final T that) {
@@ -48,9 +49,9 @@ public interface MutableSymetricSet<O, B, T extends MutableSymetricSet<O, B, T>>
 
 
 
-	public static interface Factory<O,B,T extends MutableSymetricSet<O, B, T>> extends
-	MutableSet.Factory<O, B, T>,
-	ClosedSymetricSet.Factory<O, B, T> {
+	public static interface Factory<O,B,T extends MutableSymetricSet<O, B, T, F>, F extends Factory<O,B,T,F>> extends
+	MutableSet.Factory<O, B, T, F>,
+	ClosedSymetricSet.Factory<O, B, T, F> {
 
 	}
 

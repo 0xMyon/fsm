@@ -9,16 +9,16 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public class IterationExpression<O, T extends ClosedLanguage<O, O, T>> extends Expression<O,T> {
+public class IterationExpression<O, T extends ClosedLanguage<O, O, T, ?>> extends Expression<O,T> {
 
 	private final Expression<O,T> one;
 
-	private IterationExpression(final ClosedLanguage.Factory<O, O, T> factory, final Expression<O,T> one) {
+	private IterationExpression(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T> one) {
 		super(factory);
 		this.one = one;
 	}
 
-	public static <O, T extends ClosedLanguage<O, O, T>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T> factory, final Expression<O,T> one) {
+	public static <O, T extends ClosedLanguage<O, O, T, ?>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T> one) {
 		if (one instanceof IterationExpression) {
 			return one;
 		} else {
@@ -27,7 +27,7 @@ public class IterationExpression<O, T extends ClosedLanguage<O, O, T>> extends E
 	}
 
 	@Override
-	public <R extends ClosedLanguage<O, O, R>> R convert(final ClosedLanguage.Factory<O, O, R> factory) {
+	public <R extends ClosedLanguage<O, O, R, ?>> R convert(final ClosedLanguage.Factory<O, O, R, ?> factory) {
 		return this.one.convert(factory).iteration();
 	}
 

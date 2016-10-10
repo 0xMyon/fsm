@@ -14,7 +14,7 @@ import com.github.myon.fsmlib.immutable.ClosedSet;
 import com.github.myon.fsmlib.mutable.MutableSet;
 import com.github.myon.util.Anything;
 
-public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet<O>> {
+public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet<O>, FiniteSet.Factory<O>> {
 
 	protected final Set<O> data = new HashSet<>();
 
@@ -187,12 +187,12 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedSet<O, O, R>> R convert(final ClosedSet.Factory<O, O, R> factory)  {
+	public <R extends ClosedSet<O, O, R, ?>> R convert(final ClosedSet.Factory<O, O, R, ?> factory)  {
 		return factory.union( (O[]) this.data.toArray()  );
 	}
 
 
-	public static final class Factory<O> implements MutableSet.Factory<O, O, FiniteSet<O>> {
+	public static final class Factory<O> implements MutableSet.Factory<O, O, FiniteSet<O>, Factory<O>> {
 
 		@Override
 		@SuppressWarnings("unchecked")

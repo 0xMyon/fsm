@@ -10,7 +10,8 @@ import com.github.myon.fsmlib.immutable.ClosedSequence;
  * @param <O> element type
  * @param <T> underling type
  */
-public interface MutableSequence<O, B, T extends MutableSequence<O, B, T>> extends ClosedSequence<O, B, T> {
+public interface MutableSequence<O, B, T extends MutableSequence<O, B, T, F>, F extends MutableSequence.Factory<O, B, T, F>>
+extends ClosedSequence<O, B, T, F> {
 
 	/**
 	 * appends a sequence
@@ -50,7 +51,8 @@ public interface MutableSequence<O, B, T extends MutableSequence<O, B, T>> exten
 	public T copy();
 
 
-	public interface Factory<O, B, T extends MutableSequence<O, B, T>> extends ClosedSequence.Factory<O, B, T> {
+	public interface Factory<O, B, T extends MutableSequence<O, B, T, F>, F extends Factory<O,B,T,F>>
+	extends ClosedSequence.Factory<O, B, T, F> {
 
 		@Override
 		@SuppressWarnings("unchecked")
@@ -64,7 +66,7 @@ public interface MutableSequence<O, B, T extends MutableSequence<O, B, T>> exten
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public default <R extends ClosedSequence<O, B, R>> T sequence(final R... others) {
+		public default <R extends ClosedSequence<O, B, R, ?>> T sequence(final R... others) {
 			final T result = this.epsilon();
 			for (final R other: others) {
 				result.append(other.convert(this));
@@ -73,7 +75,7 @@ public interface MutableSequence<O, B, T extends MutableSequence<O, B, T>> exten
 		}
 
 		@Override
-		public default <R extends ClosedSequence<O, B, R>> T sequence(final Sequence<R> others) {
+		public default <R extends ClosedSequence<O, B, R, ?>> T sequence(final Sequence<R> others) {
 			final T result = this.epsilon();
 			others.forAll((other)-> result.append(other.convert(this)));
 			return result;

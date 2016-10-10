@@ -10,7 +10,7 @@ import com.github.myon.fsmlib.factory.ElementaryFactory;
  * @param <O> element type
  * @param <T> underling type
  */
-public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T>> {
+public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T, F>, F extends ClosedSequence.Factory<O, B, T, F>> {
 
 	/**
 	 * concatenates two sequences
@@ -32,12 +32,12 @@ public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T>> {
 	public boolean isEpsilon();
 
 
-	public Factory<O, B, T> factory();
+	public F factory();
 
-	public <R extends ClosedSequence<O, B, R>> R convert(final Factory<O, B, R> factory);
+	public <R extends ClosedSequence<O, B, R, ?>> R convert(final Factory<O, B, R, ?> factory);
 
 
-	public static interface Factory<O, B, T extends ClosedSequence<O, B, T>> extends ElementaryFactory<B, T>  {
+	public static interface Factory<O, B, T extends ClosedSequence<O, B, T, F>, F extends Factory<O, B, T,F>> extends ElementaryFactory<B, T>  {
 
 		public T epsilon();
 
@@ -51,7 +51,7 @@ public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T>> {
 		}
 
 		@SuppressWarnings("unchecked")
-		public default <R extends ClosedSequence<O, B, R>> T sequence(final R... others) {
+		public default <R extends ClosedSequence<O, B, R, ?>> T sequence(final R... others) {
 			T result = this.epsilon();
 			for (final R other: others) {
 				result = result.concat(other.convert(this));
@@ -59,7 +59,7 @@ public interface ClosedSequence<O, B, T extends ClosedSequence<O, B, T>> {
 			return result;
 		}
 
-		public default <R extends ClosedSequence<O, B, R>> T sequence(final Sequence<R> others) {
+		public default <R extends ClosedSequence<O, B, R, ?>> T sequence(final Sequence<R> others) {
 			return others.aggregate(
 					()->this.epsilon(),
 					(c,r)->r.concat(c.convert(Factory.this))

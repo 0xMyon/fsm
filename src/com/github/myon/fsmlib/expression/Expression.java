@@ -10,11 +10,11 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implements ClosedLanguage<O, O, Expression<O,T>> {
+public abstract class Expression<O, T extends ClosedLanguage<O, O, T, ?>> implements ClosedLanguage<O, O, Expression<O,T>, Expression.Factory<O,T>> {
 
-	private final ClosedLanguage.Factory<O, O, T> factory;
+	private final ClosedLanguage.Factory<O, O, T, ?> factory;
 
-	public Expression(final ClosedLanguage.Factory<O, O, T> factory) {
+	public Expression(final ClosedLanguage.Factory<O, O, T, ?> factory) {
 		this.factory = factory;
 	}
 
@@ -81,8 +81,8 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T>> implement
 		return new Factory<>();
 	}
 
-	public static final class Factory<O,T extends ClosedLanguage<O, O, T>> implements
-	ClosedLanguage.Factory<O, O, Expression<O,T>> {
+	public static final class Factory<O,T extends ClosedLanguage<O, O, T, ?>> implements
+	ClosedLanguage.Factory<O, O, Expression<O,T>, Factory<O,T>> {
 
 
 		@Override

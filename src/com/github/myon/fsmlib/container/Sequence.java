@@ -13,7 +13,7 @@ import com.github.myon.fsmlib.immutable.ClosedSequence;
 import com.github.myon.fsmlib.mutable.MutableSequence;
 import com.github.myon.util.Anything;
 
-public class Sequence<O> extends Anything implements MutableSequence<O, O, Sequence<O>> {
+public class Sequence<O> extends Anything implements MutableSequence<O, O, Sequence<O>, Sequence.Factory<O>> {
 
 	protected final List<O> data = new LinkedList<>();
 
@@ -128,18 +128,23 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Factory<O> factory() {
-		return new Factory<O>();
+		try {
+			return Factory.class.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new Error();
+		}
 	}
 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R extends ClosedSequence<O, O, R>> R convert(final ClosedSequence.Factory<O, O, R> factory) {
+	public <R extends ClosedSequence<O, O, R, ?>> R convert(final ClosedSequence.Factory<O, O, R, ?> factory) {
 		return factory.sequence( (O[]) this.data.toArray()  );
 	}
 
-	public static final class Factory<O> implements MutableSequence.Factory<O, O, Sequence<O>> {
+	public static final class Factory<O> implements MutableSequence.Factory<O, O, Sequence<O>, Factory<O>> {
 		@Override
 		@SuppressWarnings("unchecked")
 		public Sequence<O> sequence(final O... objects) {
