@@ -78,12 +78,16 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T, ?>> implem
 
 	@Override
 	public Factory<O, T> factory() {
-		return new Factory<>();
+		return new Factory<>(this.factory);
 	}
 
 	public static final class Factory<O,T extends ClosedLanguage<O, O, T, ?>> implements
 	ClosedLanguage.Factory<O, O, Expression<O,T>, Factory<O,T>> {
 
+		private final ClosedLanguage.Factory<O, O, T, ?> factory;
+		public Factory(final ClosedLanguage.Factory<O, O, T, ?> factory) {
+			this.factory = factory;
+		}
 
 		@Override
 		@SuppressWarnings("unchecked")
@@ -92,19 +96,17 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T, ?>> implem
 			return null;
 		}
 
-		// TODO replace null
-
 		@Override
 		public Expression<O, T> element(final O object) {
-			return new ElementaryExpression<O, T>(null, object);
+			return new ElementaryExpression<O, T>(this.factory, object);
 		}
 		@Override
 		public Expression<O, T> epsilon() {
-			return new SequenceExpression<>(null);
+			return new SequenceExpression<>(this.factory);
 		}
 		@Override
 		public Expression<O, T> empty() {
-			return new UnionExpression<>(null);
+			return new UnionExpression<>(this.factory);
 		}
 
 	}
