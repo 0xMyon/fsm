@@ -2,6 +2,7 @@ package com.github.myon.fsmlib.fsm;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import com.github.myon.fsmlib.container.FiniteSet;
@@ -154,25 +155,55 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 			return FiniteStateMachine.this.delta.findAll((t)->t.source == State.this);
 		}
 
+		public FiniteSet<State> next(final O object) {
+			return this.next().findAll((t)->t.type.contains(object)).map((t)->t.target);
+		}
+
+		public FiniteSet<State> next(final T type) {
+			return this.next().findAll((t)->t.type.containsAll(type)).map((t)->t.target);
+		}
+
+
+
 		public boolean isUnused() {
 			return !this.isInitial() && !this.isFinal() && (this.source().isEmpty() || this.target().isEmpty()) ||
 					!this.isInitial() && this.source().isEmpty();
 		}
 
+		public void delete() {
+			if (this.isInitial()) {
+				throw new Error("initial state is not deleteable");
+			}
+			FiniteStateMachine.this.delta.removeAll((t)->t.source == this || t.target == this);
+			FiniteStateMachine.this.states.remove(this);
+			FiniteStateMachine.this.finals.remove(this);
+		}
 
-		public FiniteSet<T> types() {
-			// TODO disjuncted types
-			return null;
+		public void fuse(final State that) {
+			if (this.isValid() && that.isValid()) {
+				if (this.isInitial()) {
+					that.fuse(this);
+				} else {
+					FiniteStateMachine.this.transition(this, that);
+					this.delete();
+				}
+			}
+		}
+
+		private boolean isValid() {
+			return FiniteStateMachine.this.states.contains(this);
 		}
 
 	}
 
 	private void transition(final State source, final T type, final State target) {
-		final Transition transition = this.delta.findFirst((t)->t.source == source && t.target == target);
-		if (transition == null) {
-			this.delta.add(new Transition(source, type, target));
-		} else {
-			transition.type = transition.type.union(type);
+		if (!type.isEmpty()) {
+			final Transition transition = this.delta.findFirst((t)->t.source == source && t.target == target);
+			if (transition == null) {
+				this.delta.add(new Transition(source, type, target));
+			} else {
+				transition.type = transition.type.union(type);
+			}
 		}
 	}
 
@@ -197,6 +228,16 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 			return Objects.hash(this.source,this.target);
 		}
 
+		public void setType(final T minus) {
+			if (minus.isEmpty()) {
+				FiniteStateMachine.this.delta.remove(this);
+			}
+		}
+
+		public boolean isDeleted() {
+			return !FiniteStateMachine.this.delta.contains(this);
+		}
+
 	}
 
 	@Override
@@ -211,7 +252,7 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 
 		public void step(final O object) {
 			this.state = this.state.<FiniteSet<State>>aggregate(()->new FiniteSet<>(), (state, result)->{
-				return result.union(state.next().findAll((t)->t.type.contains(object)).map((t)->t.target));
+				return result.union(state.next(object));
 			});
 		}
 
@@ -225,8 +266,12 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.delta.isEmpty() && !this.containsEpsilon();
+	}
+
+	@Override
+	public boolean isEpsilon() {
+		return this.delta.isEmpty() && this.containsEpsilon();
 	}
 
 	@Override
@@ -240,14 +285,6 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public boolean isEpsilon() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-
 
 
 	@Override
@@ -346,27 +383,72 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 
 	private void cleanup() {
 		this.deleteUnreachableStates();
+		//this.deterministric();
 		this.minimize();
+	}
+
+	private void deterministric(final FiniteStateMachine<O, T> that) {
+
+		final Map<State, FiniteSet<State>> map = new HashMap<>();
+		map.put(this.state(), new FiniteSet<>());
+
+		that.states.forAll((s)->{
+			map.values().forEach((k)->{
+				final FiniteSet<State> key = new FiniteSet<>(s);
+				key.unite(k);
+				map.put(this.state(), key);
+			});
+		});
+
+		map.put(this.initial, new FiniteSet<>(that.initial));
+
+		for(final Entry<State, FiniteSet<State>> e : map.entrySet()) {
+
+		}
+
+
+
+
 	}
 
 	private void minimize() {
 		final FiniteSet<Pair<State>> x = new FiniteSet<>();
 		this.states.forAll((f)-> this.states.forAll((s)-> {
-			if (f != s && f.isFinal() != s.isFinal()) {
-				x.add(new Pair<State>(f,s));
+			if (f != s && f.isFinal() == s.isFinal()) {
+				x.add(new Pair<>(f,s));
 			}
 		}));
-
+		while(x.removeAll((p)->{
+			final FiniteSet<T> types = new FiniteSet<>();
+			types.unite(p.a.next().map((t)->t.type));
+			types.unite(p.b.next().map((t)->t.type));
+			final boolean b = types.intersects((type)->{
+				return !x.contains(new Pair<>(p.a.next(type).first(), p.b.next(type).first()));
+			});
+			if (b) {
+				System.out.println(p.a.toString() + "-> "+p.a.next()+" and " + p.b.toString() + "-> "+p.b.next()+" are not equal!");
+			} else {
+				System.out.println(p.a.toString() + "-> "+p.a.next()+" and " + p.b.toString() + "-> "+p.b.next()+" are equal!");
+			}
+			return b;
+		})) {}
+		x.forAll((p)->{
+			p.a.fuse(p.b);
+		});
 	}
 
 	private void deleteUnreachableStates() {
-		while(this.states.removeAll(
-				this.states.findAll((s)->s.isUnused())
-				)) {}
+		while(this.states.findAll((s)->s.isUnused()).forAll((s)->s.delete())) {}
 	}
 
 	public static final class Factory<O,T extends ClosedSymetricSet<O, O, T, ?>> implements
 	ClosedLanguage.Factory<O, O, FiniteStateMachine<O,T>, Factory<O,T>> {
+
+		private final ClosedSymetricSet.Factory<O, O, T, ?> factory;
+
+		Factory(final ClosedSymetricSet.Factory<O, O, T, ?> factory) {
+			this.factory = factory;
+		}
 
 
 		@Override
@@ -376,35 +458,36 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 			return null;
 		}
 
-		// TODO replace null
-
 		@Override
 		public FiniteStateMachine<O, T> element(final O object) {
-			return new FiniteStateMachine<>(null, object);
+			return new FiniteStateMachine<>(this.factory, object);
 		}
 
 		@Override
 		public FiniteStateMachine<O, T> epsilon() {
-			return new FiniteStateMachine<>(null, true);
+			return new FiniteStateMachine<>(this.factory, true);
 		}
 
 		@Override
 		public FiniteStateMachine<O, T> empty() {
-			return new FiniteStateMachine<>(null, false);
+			return new FiniteStateMachine<>(this.factory, false);
 		}
 
 	}
 
 	@Override
 	public <R extends ClosedLanguage<O, O, R, ?>> R convert(final ClosedLanguage.Factory<O, O, R, ?> factory) {
-		// TODO Auto-generated method stub
+
+		//final FiniteStateMachine<O, R> converter = new FiniteStateMachine<O,R>(factory, this.containsEpsilon());
+
+
 		return null;
 	}
 
 
 	@Override
 	public Factory<O, T> factory() {
-		return new Factory<>();
+		return new Factory<>(this.factory);
 	}
 
 }

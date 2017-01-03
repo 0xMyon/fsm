@@ -11,5 +11,9 @@ public abstract class Anything {
 	@Override
 	public abstract boolean equals(Object other);
 
+	public static boolean equals(final Object left, final Object right) {
+		return (left == null && right == null) || left.equals(right);
+	}
+
 
 }

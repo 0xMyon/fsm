@@ -11,7 +11,7 @@ implements MutableSymetricSet<O, O, SymetricSet<O>, SymetricSet.Factory<O>> {
 
 
 	private boolean inverted = false;
-	private final FiniteSet<O> data = new FiniteSet<O>();
+	private final FiniteSet<O> data = new FiniteSet<>();
 
 	@SafeVarargs
 	public SymetricSet(final O... objects) {
@@ -62,7 +62,7 @@ implements MutableSymetricSet<O, O, SymetricSet<O>, SymetricSet.Factory<O>> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public SymetricSet<O> copy() {
-		final SymetricSet<O> result = new SymetricSet<O>(this.inverted, (O[])this.data.data.toArray());
+		final SymetricSet<O> result = new SymetricSet<>(this.inverted, (O[])this.data.data.toArray());
 		return result;
 	}
 
@@ -141,32 +141,27 @@ implements MutableSymetricSet<O, O, SymetricSet<O>, SymetricSet.Factory<O>> {
 		@Override
 		@SuppressWarnings("unchecked")
 		public SymetricSet<O> union(final O... objects) {
-			return new SymetricSet<O>(false, objects);
+			return new SymetricSet<>(false, objects);
 		}
 		@Override
 		@SuppressWarnings("unchecked")
 		public SymetricSet<O> intersection(final O... objects) {
-			return new SymetricSet<O>(true, objects);
+			return new SymetricSet<>(true, objects);
 		}
 		@Override
 		public SymetricSet<O> element(final O object) {
-			return new SymetricSet<O>(false, object);
+			return new SymetricSet<>(false, object);
 		}
 		@Override
 		public SymetricSet<O> empty() {
-			return new SymetricSet<O>(false);
+			return new SymetricSet<>(false);
 		}
 	}
 
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Factory<O> factory() {
-		try {
-			return Factory.class.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new Error();
-		}
+		return new Factory<>();
 	}
 
 

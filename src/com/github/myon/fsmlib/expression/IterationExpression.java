@@ -18,9 +18,10 @@ public class IterationExpression<O, T extends ClosedLanguage<O, O, T, ?>> extend
 		this.one = one;
 	}
 
-	public static <O, T extends ClosedLanguage<O, O, T, ?>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T> one) {
+	public static <O, T extends ClosedLanguage<O, O, T, ?>> IterationExpression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T> one) {
+		// iteration is idendenpotent
 		if (one instanceof IterationExpression) {
-			return one;
+			return (IterationExpression<O,T>) one;
 		} else {
 			return new IterationExpression<>(factory, one);
 		}

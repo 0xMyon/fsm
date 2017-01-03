@@ -23,18 +23,18 @@ public class Pair<T> extends Anything {
 
 	@Override
 	public int hashCode() {
-		return this.a.hashCode() + this.b.hashCode();
+		return (this.a==null?0:this.a.hashCode()) + (this.b==null?0:this.b.hashCode());
 	}
 
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof Pair) {
 			final Pair<?> that = (Pair<?>) other;
-			return this.a.equals(that.a) && this.b.equals(that.b) || this.a.equals(that.b) && this.b.equals(that.a);
+			return Anything.equals(this.a,that.a) && Anything.equals(this.b,that.b)
+					|| Anything.equals(this.a,that.b) && Anything.equals(this.b,that.a);
 		}
 		return false;
 	}
-
 
 
 }

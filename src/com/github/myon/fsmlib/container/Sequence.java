@@ -128,13 +128,8 @@ public class Sequence<O> extends Anything implements MutableSequence<O, O, Seque
 
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Factory<O> factory() {
-		try {
-			return Factory.class.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new Error();
-		}
+		return new Factory<>();
 	}
 
 

@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import com.github.myon.fsmlib.immutable.ClosedSet;
 import com.github.myon.fsmlib.mutable.MutableSet;
 import com.github.myon.util.Anything;
+import com.github.myon.util.Pair;
 
 public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet<O>, FiniteSet.Factory<O>> {
 
@@ -73,6 +74,8 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 		}
 	}
 
+
+
 	@Override
 	public void remove(final O object) {
 		this.data.remove(object);
@@ -125,10 +128,11 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 	 * applies a function to all objects in the set
 	 * @param consumer
 	 */
-	public void forAll(final Consumer<O> consumer) {
+	public boolean forAll(final Consumer<O> consumer) {
 		for(final O object: this.data) {
 			consumer.accept(object);
 		}
+		return !this.isEmpty();
 	}
 
 	public FiniteSet<O> findAll(final Predicate<O> predicate) {
@@ -139,6 +143,15 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 			}
 		}
 		return result;
+	}
+
+	public boolean intersects(final Predicate<O> predicate) {
+		for(final O object: this.data) {
+			if (predicate.test(object)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public O findFirst(final Predicate<O> predicate) {
@@ -180,7 +193,7 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 
 	@Override
 	public Factory<O> factory() {
-		return new Factory<O>();
+		return new Factory<>();
 	}
 
 
@@ -210,6 +223,38 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 
 	}
 
+
+	public O first() {
+		return this.findFirst((x)->true);
+	}
+
+	public int size() {
+		return this.data.size();
+	}
+
+	public FiniteSet<O> intersect(final Predicate<O> predicate) {
+		final FiniteSet<O> result = new FiniteSet<>();
+		for (final O current : this.data) {
+			if (predicate.test(current)) {
+				result.add(current);
+			}
+		}
+		return result;
+	}
+
+
+
+
+	public FiniteSet<Pair<O>> findPairs(final Predicate<Pair<O>> predicate) {
+		final FiniteSet<Pair<O>> result = new FiniteSet<>();
+		this.forAll((f)-> this.forAll((s)-> {
+			final Pair<O> pair = new Pair<>(f, s);
+			if (predicate.test(pair)) {
+				result.add(pair);
+			}
+		}));
+		return result;
+	}
 
 
 

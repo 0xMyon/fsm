@@ -17,4 +17,15 @@ public interface OrderedType<O, T extends OrderedType<O, T>> extends Type<O> {
 	 */
 	public boolean containsAll(T that);
 
+	/**
+	 * compares two types in order to the objects they containing
+	 * may override this method to gain speed-up
+	 * @param that type to test
+	 * @return true, if the contained objects are the same
+	 */
+	@SuppressWarnings("unchecked")
+	public default boolean isEqual(final T that) {
+		return this.containsAll(that) && that.containsAll((T)this);
+	}
+
 }

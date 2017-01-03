@@ -110,6 +110,16 @@ public class FSMTest {
 		Assert.assertEquals(true, x.contains('b','a'));
 		Assert.assertEquals(true, x.contains('b','b'));
 
+		x = b.union(a).iteration();System.out.println(x);
+
+		Assert.assertEquals(false, x.contains());
+		Assert.assertEquals(true, x.contains('a'));
+		Assert.assertEquals(true, x.contains('b'));
+		Assert.assertEquals(true, x.contains('a','a'));
+		Assert.assertEquals(true, x.contains('a','b'));
+		Assert.assertEquals(true, x.contains('b','a'));
+		Assert.assertEquals(true, x.contains('b','b'));
+
 
 	}
 
