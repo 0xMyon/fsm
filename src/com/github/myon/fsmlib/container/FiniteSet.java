@@ -256,6 +256,11 @@ public class FiniteSet<O> extends Anything implements MutableSet<O, O, FiniteSet
 		return result;
 	}
 
+	@Override
+	public FiniteSet<O> THIS() {
+		return this;
+	}
+
 
 
 

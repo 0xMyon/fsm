@@ -71,8 +71,7 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T, ?>> implem
 
 	@Override
 	public Expression<O,T> option() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.union(this.factory().epsilon());
 	}
 
 
@@ -98,17 +97,22 @@ public abstract class Expression<O, T extends ClosedLanguage<O, O, T, ?>> implem
 
 		@Override
 		public Expression<O, T> element(final O object) {
-			return new ElementaryExpression<O, T>(this.factory, object);
+			return new ElementaryExpression<>(this.factory, object);
 		}
 		@Override
 		public Expression<O, T> epsilon() {
-			return new SequenceExpression<>(this.factory);
+			return SequenceExpression.create(this.factory);
 		}
 		@Override
 		public Expression<O, T> empty() {
-			return new UnionExpression<>(this.factory);
+			return UnionExpression.create(this.factory);
 		}
 
+	}
+
+	@Override
+	public Expression<O, T> THIS() {
+		return this;
 	}
 
 

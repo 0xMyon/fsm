@@ -12,24 +12,23 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  */
 public class SequenceExpression<O, T extends ClosedLanguage<O, O, T, ?>> extends Expression<O,T> {
 
-	// TODO return elementary on single element
-
 	@SafeVarargs
-	public SequenceExpression(final ClosedLanguage.Factory<O, O, T, ?> factory, final O... objects) {
+	private SequenceExpression(final ClosedLanguage.Factory<O, O, T, ?> factory, final O... objects) {
 		super(factory);
 		for(final O object : objects) {
 			this.factors.append(new ElementaryExpression<>(factory, object));
 		}
 	}
 
-
-
 	private final Sequence<Expression<O,T>> factors = new Sequence<>();
 
 
 
 	@SafeVarargs
-	public static <O, T extends ClosedLanguage<O, O, T, ?>> SequenceExpression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T>... factors) {
+	public static <O, T extends ClosedLanguage<O, O, T, ?>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T>... factors) {
+		if (factors.length == 1) {
+			return factors[0];
+		}
 		final SequenceExpression<O,T> result = new SequenceExpression<>(factory);
 		for(final Expression<O,T> factor : factors) {
 			if (factor instanceof SequenceExpression) {

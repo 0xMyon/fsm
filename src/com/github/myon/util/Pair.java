@@ -9,29 +9,29 @@ package com.github.myon.util;
  */
 public class Pair<T> extends Anything {
 
-	public final T a,b;
+	public final T first,second;
 
 	public Pair(final T a, final T b) {
-		this.a = a;
-		this.b = b;
+		this.first = a;
+		this.second = b;
 	}
 
 	@Override
 	public String toString() {
-		return "("+this.a+","+this.b+")";
+		return "("+this.first+","+this.second+")";
 	}
 
 	@Override
 	public int hashCode() {
-		return (this.a==null?0:this.a.hashCode()) + (this.b==null?0:this.b.hashCode());
+		return (this.first==null?0:this.first.hashCode()) + (this.second==null?0:this.second.hashCode());
 	}
 
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof Pair) {
 			final Pair<?> that = (Pair<?>) other;
-			return Anything.equals(this.a,that.a) && Anything.equals(this.b,that.b)
-					|| Anything.equals(this.a,that.b) && Anything.equals(this.b,that.a);
+			return Anything.equals(this.first,that.first) && Anything.equals(this.second,that.second)
+					|| Anything.equals(this.first,that.second) && Anything.equals(this.second,that.first);
 		}
 		return false;
 	}

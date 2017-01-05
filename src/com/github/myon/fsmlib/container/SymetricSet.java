@@ -2,6 +2,7 @@ package com.github.myon.fsmlib.container;
 
 import java.util.Objects;
 
+import com.github.myon.fsmlib.immutable.ClosedSet;
 import com.github.myon.fsmlib.immutable.ClosedSymetricSet;
 import com.github.myon.fsmlib.mutable.MutableSymetricSet;
 import com.github.myon.util.Anything;
@@ -162,6 +163,18 @@ implements MutableSymetricSet<O, O, SymetricSet<O>, SymetricSet.Factory<O>> {
 	@Override
 	public Factory<O> factory() {
 		return new Factory<>();
+	}
+
+	@Override
+	public <R extends ClosedSet<O, O, R, ?>> R convert(
+			final com.github.myon.fsmlib.immutable.ClosedSet.Factory<O, O, R, ?> factory) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SymetricSet<O> THIS() {
+		return this;
 	}
 
 

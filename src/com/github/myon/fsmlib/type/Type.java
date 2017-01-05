@@ -15,7 +15,7 @@ public interface Type<O> extends Predicate<O> {
 	 * @param object the checked objects
 	 * @return true, if objects is contained
 	 */
-	public boolean contains(O object);
+	public boolean contains(final O object);
 
 
 	@Override

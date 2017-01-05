@@ -10,12 +10,10 @@ import com.github.myon.fsmlib.immutable.ClosedLanguage;
  * @param <O> based object type
  * @param <T> underlying type
  */
-public class UnionExpression<O,T extends ClosedLanguage<O,O, T, ?>> extends Expression<O,T> {
-
-	// TODO return elementary on single element
+public class UnionExpression<O, T extends ClosedLanguage<O, O, T, ?>> extends Expression<O, T> {
 
 	@SafeVarargs
-	public UnionExpression(final ClosedLanguage.Factory<O, O, T, ?> factory, final O... objects) {
+	private UnionExpression(final ClosedLanguage.Factory<O, O, T, ?> factory, final O... objects) {
 		super(factory);
 		for(final O object : objects) {
 			this.summands.add(new ElementaryExpression<>(factory, object));
@@ -26,7 +24,10 @@ public class UnionExpression<O,T extends ClosedLanguage<O,O, T, ?>> extends Expr
 	private final FiniteSet<Expression<O,T>> summands = new FiniteSet<>();
 
 	@SafeVarargs
-	public static <O,T extends ClosedLanguage<O, O, T, ?>> UnionExpression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T>... summands) {
+	public static <O,T extends ClosedLanguage<O, O, T, ?>> Expression<O,T> create(final ClosedLanguage.Factory<O, O, T, ?> factory, final Expression<O,T>... summands) {
+		if (summands.length == 1) {
+			return summands[0];
+		}
 		final UnionExpression<O,T> result = new UnionExpression<>(factory);
 		for(final Expression<O,T> summand : summands) {
 			if (summand instanceof UnionExpression) {

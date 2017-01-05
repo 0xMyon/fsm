@@ -282,7 +282,9 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 
 	@Override
 	public boolean containsAll(final FiniteStateMachine<O, T> that) {
-		// TODO Auto-generated method stub
+
+
+
 		return false;
 	}
 
@@ -420,20 +422,20 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 		}));
 		while(x.removeAll((p)->{
 			final FiniteSet<T> types = new FiniteSet<>();
-			types.unite(p.a.next().map((t)->t.type));
-			types.unite(p.b.next().map((t)->t.type));
+			types.unite(p.first.next().map((t)->t.type));
+			types.unite(p.second.next().map((t)->t.type));
 			final boolean b = types.intersects((type)->{
-				return !x.contains(new Pair<>(p.a.next(type).first(), p.b.next(type).first()));
+				return !x.contains(new Pair<>(p.first.next(type).first(), p.second.next(type).first()));
 			});
 			if (b) {
-				System.out.println(p.a.toString() + "-> "+p.a.next()+" and " + p.b.toString() + "-> "+p.b.next()+" are not equal!");
+				System.out.println(p.first.toString() + "-> "+p.first.next()+" and " + p.second.toString() + "-> "+p.second.next()+" are not equal!");
 			} else {
-				System.out.println(p.a.toString() + "-> "+p.a.next()+" and " + p.b.toString() + "-> "+p.b.next()+" are equal!");
+				System.out.println(p.first.toString() + "-> "+p.first.next()+" and " + p.second.toString() + "-> "+p.second.next()+" are equal!");
 			}
 			return b;
 		})) {}
 		x.forAll((p)->{
-			p.a.fuse(p.b);
+			p.first.fuse(p.second);
 		});
 	}
 
@@ -488,6 +490,11 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 	@Override
 	public Factory<O, T> factory() {
 		return new Factory<>(this.factory);
+	}
+
+	@Override
+	public FiniteStateMachine<O, T> THIS() {
+		return this;
 	}
 
 }
