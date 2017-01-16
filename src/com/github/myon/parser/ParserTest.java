@@ -2,6 +2,7 @@ package com.github.myon.parser;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class ParserTest {
 
 		Assert.assertEquals(
 				Util.set(Tuple.of('a', Util.string("bc"))),
-				a.apply(w));
+				a.apply(w).collect(Collectors.toSet()));
 
 		Assert.assertEquals(
 				Util.set(
@@ -30,13 +31,13 @@ public class ParserTest {
 						Tuple.of(Util.string("aa"), Util.string("ab")),
 						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
-				a.any().apply(Util.string("aaab")));
+				a.any().apply(Util.string("aaab")).collect(Collectors.toSet()));
 
 		Assert.assertEquals(
 				Util.set(
 						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
-				a.whole().apply(Util.string("aaab")));
+				a.whole().apply(Util.string("aaab")).collect(Collectors.toSet()));
 
 
 
@@ -44,18 +45,18 @@ public class ParserTest {
 				Util.set(
 						Tuple.of(Util.string("aaa"), Util.string(""))
 						),
-				a.many().just().apply(Util.string("aaa")));
+				a.many().just().apply(Util.string("aaa")).collect(Collectors.toSet()));
 
 		Assert.assertEquals(Util.set(
 				Tuple.of(Optional.of('a'), Util.string("")),
 				Tuple.of(Optional.empty(), Util.string("a"))
 				),
-				a.option().apply(Util.string("a")));
+				a.option().apply(Util.string("a")).collect(Collectors.toSet()));
 
 		Assert.assertEquals(Util.set(
 				Tuple.of(Optional.of('a'), Util.string(""))
 				),
-				a.consume().apply(Util.string("a")));
+				a.consume().apply(Util.string("a")).collect(Collectors.toSet()));
 
 
 	}
@@ -85,7 +86,7 @@ public class ParserTest {
 						new Token<>(ws, Util.string(" ")),
 						new Token<>(number, Util.string("789"))
 						), Util.string(""))
-				), tokenizer.apply(Util.string("123 + 456 - 789")));
+				), tokenizer.apply(Util.string("123 + 456 - 789")).collect(Collectors.toSet()));
 
 
 		//final Parser<Token<Character>, Node> number_node = Parser.satisfy(number).apply(Node::new);

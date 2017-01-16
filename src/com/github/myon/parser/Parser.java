@@ -3,11 +3,9 @@ package com.github.myon.parser;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.myon.util.Tuple;
@@ -22,26 +20,16 @@ import com.github.myon.util.Tuple;
  * @param <I> the input symbols
  * @param <O> the actual output
  */
-public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
+public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>> {
 
 	// TODO use Streams everywhere
-
-	@SafeVarargs
-	public static <T> Set<T> Set(final T...ts) {
-		return Stream.of(ts).collect(Collectors.toSet());
-	}
-
-	@SafeVarargs
-	public static <T> List<T> List(final T...ts) {
-		return Stream.of(ts).collect(Collectors.toList());
-	}
 
 
 	/**
 	 * @return a {@code Parser<I,O>} always returning an empty {@code Set}
 	 */
 	public static <I,O> Parser<I,O> nothing() {
-		return word -> Parser.Set();
+		return word -> Stream.empty();
 	}
 
 	/**
@@ -49,7 +37,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return a {@code Parser<I,O>} whose output is supplied external
 	 */
 	public static <I,O> Parser<I,O> succeed(final Supplier<? extends O> supplier) {
-		return word -> Parser.Set(Tuple.of(supplier.get(), word));
+		return word -> Stream.of(Tuple.of(supplier.get(), word));
 	}
 
 	/**
@@ -59,8 +47,8 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	public static <IO> Parser<IO,IO> satisfy(final Predicate<? super IO> predicate) {
 		return word ->
 		!word.isEmpty() && predicate.test(word.get(0)) ?
-				Parser.Set(Tuple.of(word.get(0), word.subList(1, word.size())))
-				: Parser.Set();
+				Stream.of(Tuple.of(word.get(0), word.subList(1, word.size())))
+				: Stream.empty();
 	}
 
 	/**
@@ -69,10 +57,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return a {@code Parser<I,O>}
 	 */
 	public default Parser<I,O> choice(final Parser<I,O> that) {
-		return word -> Stream.concat(
-				this.apply(word).stream(),
-				that.apply(word).stream()
-				).collect(Collectors.toSet());
+		return word -> Stream.concat(this.apply(word), that.apply(word));
 	}
 
 	@SafeVarargs
@@ -86,11 +71,10 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return
 	 */
 	public default <T> Parser<I,Tuple<O,T>> concat(final Parser<I,T> that) {
-		return word -> this.apply(word).stream()
-				.map(a -> that.apply(a.target).stream()
+		return word -> this.apply(word)
+				.map(a -> that.apply(a.target)
 						.map(b -> Tuple.of(Tuple.of(a.source, b.source), b.target)))
-				.reduce(Stream.empty(), Stream::concat)
-				.collect(Collectors.toSet());
+				.reduce(Stream.empty(), Stream::concat);
 	}
 
 	/**
@@ -101,9 +85,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	public default <T> Parser<I,T> apply(final Function<? super O, T> function) {
 		return word -> this
 				.apply(word)
-				.stream()
-				.map(t -> Tuple.of(function.apply(t.source), t.target))
-				.collect(Collectors.toSet());
+				.map(t -> Tuple.of(function.apply(t.source), t.target));
 	}
 
 	/**
@@ -114,9 +96,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	public default Parser<I,O> filter(final Predicate<? super Tuple<O, List<I>>> predicate) {
 		return word -> this
 				.apply(word)
-				.stream()
-				.filter(predicate)
-				.collect(Collectors.toSet());
+				.filter(predicate);
 	}
 
 	/**
@@ -126,11 +106,9 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	public default Parser<I,O> greedy() {
 		return word -> this
 				.apply(word)
-				.stream()
 				.min((a,b) -> a.target.size() - b.target.size())
 				.map(Stream::of)
-				.orElseGet(Stream::empty)
-				.collect(Collectors.toSet());
+				.orElseGet(Stream::empty);
 	}
 
 
