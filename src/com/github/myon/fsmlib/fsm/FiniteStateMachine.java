@@ -380,7 +380,7 @@ public class FiniteStateMachine<O, T extends ClosedSymetricSet<O, O, T, ?>> impl
 		that.delta.forAll((t)-> {
 			this.transition(map.get(t.source), t.type, map.get(t.target));
 		});
-		return new Tuple<>(map.get(that.initial), that.finals.map((s)->map.get(s)));
+		return Tuple.of(map.get(that.initial), that.finals.map((s)->map.get(s)));
 	}
 
 	private void cleanup() {
