@@ -13,12 +13,8 @@ public class Tuple<F,S> extends Anything {
 		this.target = target;
 	}
 
-	public <T> Tuple<T,S> mapLeft(final Function<? super F, T> function) {
-		return Tuple.of(function.apply(this.source), this.target);
-	}
-
-	public <T> Tuple<F,T> mapRight(final Function<? super S, T> function) {
-		return Tuple.of(this.source, function.apply(this.target));
+	public static <F,S,T> Function<Tuple<F,S>, Tuple<T,S>> left(final Function<? super F,T> function) {
+		return tuple -> Tuple.of(function.apply(tuple.source), tuple.target);
 	}
 
 	public static <F,S> Tuple<F,S> of(final F first, final S second) {

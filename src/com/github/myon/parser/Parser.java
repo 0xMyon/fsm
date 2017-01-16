@@ -73,7 +73,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	public default <T> Parser<I,Tuple<O,T>> concat(final Parser<I,T> that) {
 		return word -> this.apply(word)
 				.map(a -> that.apply(a.target)
-						.map(b -> b.mapLeft(s -> Tuple.of(a.source, s))))
+						.map(Tuple.left(s -> Tuple.of(a.source, s))))
 				.reduce(Stream.empty(), Stream::concat);
 	}
 
@@ -83,9 +83,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @return a {@code Parser<I,T>} with converted output
 	 */
 	public default <T> Parser<I,T> map(final Function<? super O, T> function) {
-		return word -> this
-				.apply(word)
-				.map(t -> t.mapLeft(function));
+		return word -> this.apply(word).map(Tuple.left(function));
 	}
 
 	/**
@@ -94,9 +92,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @return a {@code Parser<I,O>} with filtered output
 	 */
 	public default Parser<I,O> filter(final Predicate<? super Tuple<O, List<I>>> predicate) {
-		return word -> this
-				.apply(word)
-				.filter(predicate);
+		return word -> this.apply(word).filter(predicate);
 	}
 
 	/**
@@ -104,11 +100,9 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @return
 	 */
 	public default Parser<I,O> greedy() {
-		return word -> this
-				.apply(word)
+		return word -> this.apply(word)
 				.min((a,b) -> a.target.size() - b.target.size())
-				.map(Stream::of)
-				.orElseGet(Stream::empty);
+				.map(Stream::of).orElseGet(Stream::empty);
 	}
 
 
