@@ -1,6 +1,5 @@
 package com.github.myon.parser;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +75,11 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 				).collect(Collectors.toSet());
 	}
 
+	@SafeVarargs
+	public static <I,O> Parser<I,O> choice(final Parser<I, O>... parsers) {
+		return Stream.of(parsers).reduce((a,b) -> a.choice(b)).orElseGet(Parser::nothing);
+	}
+
 	/**
 	 *
 	 * @param that
@@ -92,8 +96,12 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @param function the {@code Function} that is applied to every single result
 	 * @return a {@code Parser<I,T>} with converted output
 	 */
-	public default <T> Parser<I,T> apply(final Function<? super O, ? extends T> function) {
-		return word -> Util.map(Parser.this.apply(word), t -> new Tuple<>(function.apply(t.source), t.target));
+	public default <T> Parser<I,T> apply(final Function<? super O, T> function) {
+		return word -> this
+				.apply(word)
+				.stream()
+				.map(t -> new Tuple<>(function.apply(t.source), t.target))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -102,7 +110,11 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return a {@code Parser<I,O>} with filtered output
 	 */
 	public default Parser<I,O> filter(final Predicate<? super Tuple<O, List<I>>> predicate) {
-		return  word -> this.apply(word).stream().filter(predicate).collect(Collectors.toSet());
+		return word -> this
+				.apply(word)
+				.stream()
+				.filter(predicate)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -110,15 +122,13 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return
 	 */
 	public default Parser<I,O> greedy() {
-		// TODO return all not one
-		return word -> {
-			final Set<Tuple<O,List<I>>> result = this.apply(word);
-			if (result.isEmpty()) {
-				return Util.set();
-			} else {
-				return Util.set(Collections.min(result, (a,b) -> a.target.size() - b.target.size() ) );
-			}
-		};
+		return word -> this
+				.apply(word)
+				.stream()
+				.min((a,b) -> a.target.size() - b.target.size())
+				.map(Stream::of)
+				.orElseGet(Stream::empty)
+				.collect(Collectors.toSet());
 	}
 
 
