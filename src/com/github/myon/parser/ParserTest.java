@@ -20,21 +20,21 @@ public class ParserTest {
 		//final Parser<Character,Character> b = Parser.satisfy('b');
 
 		Assert.assertEquals(
-				Util.set(new Tuple<>('a', Util.string("bc"))),
+				Util.set(Tuple.of('a', Util.string("bc"))),
 				a.apply(w));
 
 		Assert.assertEquals(
 				Util.set(
-						new Tuple<>(Util.string(""), Util.string("aaab")),
-						new Tuple<>(Util.string("a"), Util.string("aab")),
-						new Tuple<>(Util.string("aa"), Util.string("ab")),
-						new Tuple<>(Util.string("aaa"), Util.string("b"))
+						Tuple.of(Util.string(""), Util.string("aaab")),
+						Tuple.of(Util.string("a"), Util.string("aab")),
+						Tuple.of(Util.string("aa"), Util.string("ab")),
+						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
 				a.any().apply(Util.string("aaab")));
 
 		Assert.assertEquals(
 				Util.set(
-						new Tuple<>(Util.string("aaa"), Util.string("b"))
+						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
 				a.whole().apply(Util.string("aaab")));
 
@@ -42,18 +42,18 @@ public class ParserTest {
 
 		Assert.assertEquals(
 				Util.set(
-						new Tuple<>(Util.string("aaa"), Util.string(""))
+						Tuple.of(Util.string("aaa"), Util.string(""))
 						),
 				a.many().just().apply(Util.string("aaa")));
 
 		Assert.assertEquals(Util.set(
-				new Tuple<>(Optional.of('a'), Util.string("")),
-				new Tuple<>(Optional.empty(), Util.string("a"))
+				Tuple.of(Optional.of('a'), Util.string("")),
+				Tuple.of(Optional.empty(), Util.string("a"))
 				),
 				a.option().apply(Util.string("a")));
 
 		Assert.assertEquals(Util.set(
-				new Tuple<>(Optional.of('a'), Util.string(""))
+				Tuple.of(Optional.of('a'), Util.string(""))
 				),
 				a.consume().apply(Util.string("a")));
 
@@ -74,7 +74,7 @@ public class ParserTest {
 				.all();
 
 		Assert.assertEquals(Util.set(
-				new Tuple<>(Util.list(
+				Tuple.of(Util.list(
 						new Token<>(number, Util.string("123")),
 						new Token<>(ws, Util.string(" ")),
 						new Token<>(operator, Util.string("+")),

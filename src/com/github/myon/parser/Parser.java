@@ -49,7 +49,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return a {@code Parser<I,O>} whose output is supplied external
 	 */
 	public static <I,O> Parser<I,O> succeed(final Supplier<? extends O> supplier) {
-		return word -> Parser.Set(new Tuple<>(supplier.get(), word));
+		return word -> Parser.Set(Tuple.of(supplier.get(), word));
 	}
 
 	/**
@@ -59,7 +59,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	public static <IO> Parser<IO,IO> satisfy(final Predicate<? super IO> predicate) {
 		return word ->
 		!word.isEmpty() && predicate.test(word.get(0)) ?
-				Parser.Set(new Tuple<>(word.get(0), word.subList(1, word.size())))
+				Parser.Set(Tuple.of(word.get(0), word.subList(1, word.size())))
 				: Parser.Set();
 	}
 
@@ -86,9 +86,11 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 	 * @return
 	 */
 	public default <T> Parser<I,Tuple<O,T>> concat(final Parser<I,T> that) {
-		return word -> Util.aggregate(Parser.this.apply(word), r -> Util.map(that.apply(r.target), (s)->{
-			return new Tuple<>(new Tuple<>(r.source,s.source), s.target);
-		}));
+		return word -> this.apply(word).stream()
+				.map(a -> that.apply(a.target).stream()
+						.map(b -> Tuple.of(Tuple.of(a.source, b.source), b.target)))
+				.reduce(Stream.empty(), Stream::concat)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -100,7 +102,7 @@ public interface Parser<I,O> extends Function<List<I>, Set<Tuple<O,List<I>>>> {
 		return word -> this
 				.apply(word)
 				.stream()
-				.map(t -> new Tuple<>(function.apply(t.source), t.target))
+				.map(t -> Tuple.of(function.apply(t.source), t.target))
 				.collect(Collectors.toSet());
 	}
 

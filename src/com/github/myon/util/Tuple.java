@@ -7,9 +7,13 @@ public class Tuple<F,S> extends Anything {
 	public final F source;
 	public final S target;
 
-	public Tuple(final F source, final S target) {
+	private Tuple(final F source, final S target) {
 		this.source = source;
 		this.target = target;
+	}
+
+	public static <F,S> Tuple<F,S> of(final F first, final S second) {
+		return new Tuple<>(first, second);
 	}
 
 	public F source() {
