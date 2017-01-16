@@ -1,6 +1,7 @@
 package com.github.myon.util;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class Tuple<F,S> extends Anything {
 
@@ -10,6 +11,14 @@ public class Tuple<F,S> extends Anything {
 	private Tuple(final F source, final S target) {
 		this.source = source;
 		this.target = target;
+	}
+
+	public <T> Tuple<T,S> mapLeft(final Function<? super F, T> function) {
+		return Tuple.of(function.apply(this.source), this.target);
+	}
+
+	public <T> Tuple<F,T> mapRight(final Function<? super S, T> function) {
+		return Tuple.of(this.source, function.apply(this.target));
 	}
 
 	public static <F,S> Tuple<F,S> of(final F first, final S second) {

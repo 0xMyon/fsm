@@ -14,7 +14,7 @@ public class TokenType<T> implements Predicate<Token<T>> {
 
 
 	public Parser<T, Token<T>> parser() {
-		return Parser.satisfy(this.predicate).whole().filter(result -> !result.source.isEmpty()).apply(this::create);
+		return Parser.satisfy(this.predicate).whole().filter(result -> !result.source.isEmpty()).map(this::create);
 	}
 
 	private Token<T> create(final List<T> word) {

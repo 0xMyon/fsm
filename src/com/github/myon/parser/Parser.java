@@ -73,7 +73,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	public default <T> Parser<I,Tuple<O,T>> concat(final Parser<I,T> that) {
 		return word -> this.apply(word)
 				.map(a -> that.apply(a.target)
-						.map(b -> Tuple.of(Tuple.of(a.source, b.source), b.target)))
+						.map(b -> b.mapLeft(s -> Tuple.of(a.source, s))))
 				.reduce(Stream.empty(), Stream::concat);
 	}
 
@@ -82,10 +82,10 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @param function the {@code Function} that is applied to every single result
 	 * @return a {@code Parser<I,T>} with converted output
 	 */
-	public default <T> Parser<I,T> apply(final Function<? super O, T> function) {
+	public default <T> Parser<I,T> map(final Function<? super O, T> function) {
 		return word -> this
 				.apply(word)
-				.map(t -> Tuple.of(function.apply(t.source), t.target));
+				.map(t -> t.mapLeft(function));
 	}
 
 	/**
@@ -154,7 +154,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	}
 
 	public default Parser<I,List<O>> prepend(final Parser<I,List<O>> that) {
-		return this.concat(that).apply(this::list);
+		return this.concat(that).map(this::list);
 	}
 
 	/**
@@ -170,7 +170,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	}
 
 	public default Parser<I, Optional<O>> option() {
-		return this.apply(Optional::of).choice(Parser.succeed(Optional::empty));
+		return this.map(Optional::of).choice(Parser.succeed(Optional::empty));
 	}
 
 	public default List<O> list(final Tuple<O,List<O>> tuple) {
@@ -185,11 +185,11 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 
 
 	public default <T> Parser<I,O> left(final Parser<I,T> that) {
-		return this.concat(that).apply(Tuple::source);
+		return this.concat(that).map(Tuple::source);
 	}
 
 	public default <T> Parser<I,T> right(final Parser<I,T> that) {
-		return this.concat(that).apply(Tuple::target);
+		return this.concat(that).map(Tuple::target);
 	}
 
 
