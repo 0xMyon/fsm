@@ -148,7 +148,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	}
 
 	public default Parser<I,List<O>> prepend(final Parser<I,List<O>> that) {
-		return this.concat(that).map(this::list);
+		return this.concat(that).map(Tuple::merge);
 	}
 
 	/**
@@ -166,17 +166,6 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	public default Parser<I, Optional<O>> option() {
 		return this.map(Optional::of).choice(Parser.succeed(Optional::empty));
 	}
-
-	public default List<O> list(final Tuple<O,List<O>> tuple) {
-		final List<O> result = new LinkedList<>();
-		result.add(tuple.source);
-		result.addAll(tuple.target);
-		return result;
-	}
-
-
-
-
 
 	public default <T> Parser<I,O> left(final Parser<I,T> that) {
 		return this.concat(that).map(Tuple::source);
