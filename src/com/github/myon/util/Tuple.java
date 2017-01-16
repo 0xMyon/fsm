@@ -12,9 +12,17 @@ public class Tuple<F,S> extends Anything {
 		this.target = target;
 	}
 
+	public F source() {
+		return this.source;
+	}
+
+	public S target() {
+		return this.target;
+	}
+
 	@Override
 	public String toString() {
-		return "("+this.source+","+this.target+")";
+		return "("+this.source+";"+this.target+")";
 	}
 
 	@Override
