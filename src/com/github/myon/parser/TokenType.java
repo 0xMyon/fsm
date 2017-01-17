@@ -3,6 +3,7 @@ package com.github.myon.parser;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class TokenType<T> implements Predicate<Token<T>> {
 
@@ -14,7 +15,9 @@ public class TokenType<T> implements Predicate<Token<T>> {
 
 
 	public Parser<T, Token<T>> parser() {
-		return Parser.satisfy(this.predicate).whole().filter(result -> !result.source.isEmpty()).map(this::create);
+		return Parser.satisfy(this.predicate).whole()
+				.map(s -> s.collect(Collectors.toList()))
+				.filter(result -> !result.source.isEmpty()).map(this::create);
 	}
 
 	private Token<T> create(final List<T> word) {

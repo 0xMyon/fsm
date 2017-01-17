@@ -1,9 +1,7 @@
 package com.github.myon.util;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Tuple<F,S> extends Anything {
@@ -24,8 +22,12 @@ public class Tuple<F,S> extends Anything {
 		return new Tuple<>(first, second);
 	}
 
-	public static <T> List<T> merge(final Tuple<T,List<T>> tuple) {
-		return Stream.concat(Stream.of(tuple.source), tuple.target.stream()).collect(Collectors.toList());
+	public static <T> Stream<T> merge(final Tuple<T,Stream<T>> tuple) {
+		return Stream.concat(Stream.of(tuple.source), tuple.target);
+	}
+
+	public Tuple<S,F> swop() {
+		return Tuple.of(this.target, this.source);
 	}
 
 	public F source() {

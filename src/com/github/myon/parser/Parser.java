@@ -1,11 +1,10 @@
 package com.github.myon.parser;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.myon.util.Tuple;
@@ -22,13 +21,14 @@ import com.github.myon.util.Tuple;
  */
 public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>> {
 
-	// TODO use Streams everywhere
-
+	public static <I,O> Function<Tuple<Stream<O>,List<I>>, Tuple<List<O>,List<I>>> toList() {
+		return t -> Tuple.<Stream<O>,List<I>,List<O>>left(s -> s.collect(Collectors.toList())).apply(t);
+	}
 
 	/**
 	 * @return a {@code Parser<I,O>} always returning an empty {@code Set}
 	 */
-	public static <I,O> Parser<I,O> nothing() {
+	public static <I,O> Parser<I,O> empty() {
 		return word -> Stream.empty();
 	}
 
@@ -62,7 +62,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 
 	@SafeVarargs
 	public static <I,O> Parser<I,O> choice(final Parser<I, O>... parsers) {
-		return Stream.of(parsers).reduce((a,b) -> a.choice(b)).orElseGet(Parser::nothing);
+		return Stream.of(parsers).reduce(Parser.empty(), (a,b) -> a.choice(b));
 	}
 
 	/**
@@ -110,8 +110,8 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * creates a {@code Parser<I,O>} that succeeds with an empty {@code List}
 	 * @return
 	 */
-	public static <I,O> Parser<I,List<O>> epsilon() {
-		return Parser.succeed(LinkedList::new);
+	public static <I,O> Parser<I,Stream<O>> epsilon() {
+		return Parser.succeed(Stream::empty);
 	}
 
 	/**
@@ -139,15 +139,15 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @return a {@code Parser} that aggregates results of parsers in a list
 	 */
 	@SafeVarargs
-	public static <I,O> Parser<I,List<O>> sequence(final Parser<I,O>... elements) {
-		Parser<I,List<O>> result = Parser.epsilon();
-		for(int i = elements.length-1; i >= 0; i++) {
-			result = elements[i].prepend(result);
-		}
-		return result;
+	public static <I,O> Parser<I,Stream<O>> sequence(final Parser<I,O>... parsers) {
+		return Stream.of(parsers).parallel().<Parser<I,Stream<O>>>reduce(
+				Parser.epsilon(),
+				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, Stream.of(t.target))) ,
+				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, t.target))
+				);
 	}
 
-	public default Parser<I,List<O>> prepend(final Parser<I,List<O>> that) {
+	public default Parser<I,Stream<O>> prepend(final Parser<I,Stream<O>> that) {
 		return this.concat(that).map(Tuple::merge);
 	}
 
@@ -155,16 +155,16 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * parses any number of elements into a {@code List}
 	 * @return none-greedy {@code Parser}
 	 */
-	public default Parser<I, List<O>> any() {
+	public default Parser<I, Stream<O>> any() {
 		return Parser.recursive( self -> this.prepend(self).choice(Parser.epsilon()) );
 	}
 
-	public default Parser<I, List<O>> many() {
+	public default Parser<I, Stream<O>> many() {
 		return this.prepend(this.any());
 	}
 
-	public default Parser<I, Optional<O>> option() {
-		return this.map(Optional::of).choice(Parser.succeed(Optional::empty));
+	public default Parser<I, Stream<O>> option() {
+		return this.map(Stream::of).choice(Parser.succeed(Stream::empty));
 	}
 
 	public default <T> Parser<I,O> left(final Parser<I,T> that) {
@@ -187,15 +187,15 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 
 
 
-	public default Parser<I, List<O>> whole() {
+	public default Parser<I, Stream<O>> whole() {
 		return this.many().greedy();
 	}
 
-	public default Parser<I, List<O>> all() {
+	public default Parser<I, Stream<O>> all() {
 		return this.any().greedy();
 	}
 
-	public default Parser<I, Optional<O>> consume() {
+	public default Parser<I, Stream<O>> consume() {
 		return this.option().greedy();
 	}
 
