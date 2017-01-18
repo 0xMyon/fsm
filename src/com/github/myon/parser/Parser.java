@@ -157,7 +157,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 				Parser.epsilon(),
 				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, Stream.of(t.target))) ,
 				(a,b) -> a.concat(b, Stream::concat)
-			);
+				);
 	}
 
 	public default Parser<I,Stream<O>> prepend(final Parser<I,Stream<O>> that) {
@@ -181,11 +181,11 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	}
 
 	public default <T> Parser<I,O> left(final Parser<I,T> that) {
-		return this.concat(that).map(Tuple::source);
+		return this.concat(that, (l,r) -> l);
 	}
 
 	public default <T> Parser<I,T> right(final Parser<I,T> that) {
-		return this.concat(that).map(Tuple::target);
+		return this.concat(that, (l,r) -> r);
 	}
 
 
