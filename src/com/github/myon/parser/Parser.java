@@ -155,13 +155,13 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	public static <I,O> Parser<I,Stream<O>> sequence(final Parser<I,O>... parsers) {
 		return Stream.of(parsers).parallel().<Parser<I,Stream<O>>>reduce(
 				Parser.epsilon(),
-				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, Stream.of(t.target))) ,
+				(a,b) -> a.concat(b.<Stream<O>>map(Stream::of), Stream::concat),
 				(a,b) -> a.concat(b, Stream::concat)
 				);
 	}
 
 	public default Parser<I,Stream<O>> prepend(final Parser<I,Stream<O>> that) {
-		return this.concat(that).map(Tuple::merge);
+		return this.concat(that, (l,r) -> Stream.concat(Stream.of(l), r));
 	}
 
 	/**
