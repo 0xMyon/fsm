@@ -1,12 +1,14 @@
 package com.github.myon.parser;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.github.myon.util.Either;
 import com.github.myon.util.Tuple;
 
 /**
@@ -60,6 +62,13 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 		return word -> Stream.concat(this.apply(word), that.apply(word));
 	}
 
+	public default <T> Parser<I,Either<O,T>> alternative(final Parser<I,T> that) {
+		return word -> Stream.concat(
+				this.apply(word).map(Tuple.left(Either::first)),
+				that.apply(word).map(Tuple.left(Either::second))
+				);
+	}
+
 	@SafeVarargs
 	public static <I,O> Parser<I,O> choice(final Parser<I, O>... parsers) {
 		return Stream.of(parsers).reduce(Parser.empty(), (a,b) -> a.choice(b));
@@ -70,11 +79,15 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 	 * @param that
 	 * @return
 	 */
-	public default <T> Parser<I,Tuple<O,T>> concat(final Parser<I,T> that) {
+	public default <T,R> Parser<I,R> concat(final Parser<I,T> that, final BiFunction<? super O, ? super T, R> function) {
 		return word -> this.apply(word)
 				.map(a -> that.apply(a.target)
-						.map(Tuple.left(s -> Tuple.of(a.source, s))))
+						.map(Tuple.left(s -> function.apply(a.source, s))))
 				.reduce(Stream.empty(), Stream::concat);
+	}
+
+	public default <T> Parser<I,Tuple<O, T>> concat(final Parser<I,T> that) {
+		return this.concat(that, Tuple::of);
 	}
 
 	/**
@@ -143,8 +156,8 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 		return Stream.of(parsers).parallel().<Parser<I,Stream<O>>>reduce(
 				Parser.epsilon(),
 				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, Stream.of(t.target))) ,
-				(a,b) -> a.concat(b).map(t -> Stream.concat(t.source, t.target))
-				);
+				(a,b) -> a.concat(b, Stream::concat)
+			);
 	}
 
 	public default Parser<I,Stream<O>> prepend(final Parser<I,Stream<O>> that) {
