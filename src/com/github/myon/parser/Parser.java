@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.myon.util.Either;
@@ -23,9 +22,6 @@ import com.github.myon.util.Tuple;
  */
 public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>> {
 
-	public static <I,O> Function<Tuple<Stream<O>,List<I>>, Tuple<List<O>,List<I>>> toList() {
-		return t -> Tuple.<Stream<O>,List<I>,List<O>>left(s -> s.collect(Collectors.toList())).apply(t);
-	}
 
 	/**
 	 * @return a {@code Parser<I,O>} always returning an empty {@code Set}
@@ -62,6 +58,11 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 		return word -> Stream.concat(this.apply(word), that.apply(word));
 	}
 
+	/**
+	 * unites the result set of two parses with different types
+	 * @param that
+	 * @return
+	 */
 	public default <T> Parser<I,Either<O,T>> alternative(final Parser<I,T> that) {
 		return word -> Stream.concat(
 				this.apply(word).map(Tuple.left(Either::first)),
@@ -69,15 +70,21 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 				);
 	}
 
+	/**
+	 * unites the result set of multiple parsers
+	 * @param parsers
+	 * @return new {@link Parser<I,O>}
+	 */
 	@SafeVarargs
 	public static <I,O> Parser<I,O> choice(final Parser<I, O>... parsers) {
 		return Stream.of(parsers).reduce(Parser.empty(), (a,b) -> a.choice(b));
 	}
 
 	/**
-	 *
-	 * @param that
-	 * @return
+	 * combines two parsers and applies an operator on the result
+	 * @param that second operand
+	 * @param function the binary function that is applied
+	 * @return {@link Parser} combined with combined output
 	 */
 	public default <T,R> Parser<I,R> concat(final Parser<I,T> that, final BiFunction<? super O, ? super T, R> function) {
 		return word -> this.apply(word)
@@ -86,6 +93,11 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 				.reduce(Stream.empty(), Stream::concat);
 	}
 
+	/**
+	 * combined two parsers into a {@link Tuple}
+	 * @param that second operand
+	 * @return {@link Parser} with {@link Tuple} output
+	 */
 	public default <T> Parser<I,Tuple<O, T>> concat(final Parser<I,T> that) {
 		return this.concat(that, Tuple::of);
 	}
@@ -129,7 +141,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 
 	/**
 	 * creates a {@code Parser<IO,IO>} that is satisfied with a class
-	 * @param clazz the satisfying {@code Class}
+	 * @param clazz the satisfying {@code Class#isInstance(Object)}
 	 * @return
 	 */
 	public static <IO> Parser<IO,IO> satisfy(final Class<? super IO> clazz) {
@@ -138,7 +150,7 @@ public interface Parser<I,O> extends Function<List<I>, Stream<Tuple<O,List<I>>>>
 
 	/**
 	 * creates a {@code Parser<IO,IO>} that is satisfied with an object
-	 * @param object the satisfying {@code IO::equals}
+	 * @param object the satisfying {@code Object#equals(Object)}
 	 * @return
 	 */
 	public static <IO> Parser<IO,IO> satisfy(final IO object) {

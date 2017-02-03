@@ -1,6 +1,7 @@
 package com.github.myon.parser;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,6 +11,10 @@ import org.junit.Test;
 import com.github.myon.util.Tuple;
 
 public class ParserTest {
+
+	public static <I,O> Function<Tuple<Stream<O>,List<I>>, Tuple<List<O>,List<I>>> toList() {
+		return t -> Tuple.<Stream<O>,List<I>,List<O>>left(s -> s.collect(Collectors.toList())).apply(t);
+	}
 
 	@Test
 	public void test() {
@@ -31,13 +36,13 @@ public class ParserTest {
 						Tuple.of(Util.string("aa"), Util.string("ab")),
 						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
-				a.any().apply(Util.string("aaab")).map(Parser.toList()).collect(Collectors.toSet()));
+				a.any().apply(Util.string("aaab")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		Assert.assertEquals(
 				Util.set(
 						Tuple.of(Util.string("aaa"), Util.string("b"))
 						),
-				a.whole().apply(Util.string("aaab")).map(Parser.toList()).collect(Collectors.toSet()));
+				a.whole().apply(Util.string("aaab")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 
 
@@ -45,24 +50,24 @@ public class ParserTest {
 				Util.set(
 						Tuple.of(Util.string("aaa"), Util.string(""))
 						),
-				a.many().just().apply(Util.string("aaa")).map(Parser.toList()).collect(Collectors.toSet()));
+				a.many().just().apply(Util.string("aaa")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		Assert.assertEquals(Util.set(
 				Tuple.of(Util.string("a"), Util.string("")),
 				Tuple.of(Util.string(""), Util.string("a"))
 				),
-				a.option().apply(Util.string("a")).map(Parser.toList()).collect(Collectors.toSet()));
+				a.option().apply(Util.string("a")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		Assert.assertEquals(Util.set(
 				Tuple.of(Util.string("a"), Util.string(""))
 				),
-				a.consume().apply(Util.string("a")).map(Parser.toList()).collect(Collectors.toSet()));
+				a.consume().apply(Util.string("a")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		Assert.assertEquals(
 				Util.set(
 						Tuple.of(Util.string("ababab"), Util.string(""))
 						),
-				Parser.sequence(a,b,a,b,a,b).apply(Util.string("ababab")).map(Parser.toList()).collect(Collectors.toSet()));
+				Parser.sequence(a,b,a,b,a,b).apply(Util.string("ababab")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		Assert.assertEquals(
 				Util.set(
@@ -98,7 +103,7 @@ public class ParserTest {
 						new Token<>(ws, Util.string(" ")),
 						new Token<>(number, Util.string("789"))
 						), Util.string(""))
-				), tokenizer.apply(Util.string("123 + 456 - 789")).map(Parser.toList()).collect(Collectors.toSet()));
+				), tokenizer.apply(Util.string("123 + 456 - 789")).map(ParserTest.toList()).collect(Collectors.toSet()));
 
 		//final Parser<Token<Character>, Node> number_node = Parser.satisfy(number).apply(Node::new);
 		//;
